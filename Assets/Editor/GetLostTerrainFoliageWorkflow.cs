@@ -35,7 +35,8 @@ public static class GetLostTerrainFoliageWorkflow
 
     public static TerrainFoliageSpawner EnsureSettingsSource(
         GameObject root,
-        TerrainFoliageSpawner preferred)
+        TerrainFoliageSpawner preferred,
+        IReadOnlyList<TerrainFoliageRule> selectedRules)
     {
         if (!root || !root.scene.IsValid())
             throw new InvalidOperationException("Choose a generated terrain world first.");
@@ -57,9 +58,9 @@ public static class GetLostTerrainFoliageWorkflow
         if (!source)
             source = Undo.AddComponent<TerrainFoliageSpawner>(terrains[0].gameObject);
 
-        TerrainFoliageRule[] rules = CollectSourceRules(source);
+        TerrainFoliageRule[] rules = NormaliseRules(selectedRules);
         if (rules.Length == 0)
-            throw new InvalidOperationException($"No foliage rule assets were found in '{DefaultRuleFolder}'.");
+            throw new InvalidOperationException("Choose at least one foliage rule in the terrain generator.");
 
         Undo.RecordObject(source, "Create Foliage Settings Source");
         var serialized = new SerializedObject(source);
@@ -76,10 +77,16 @@ public static class GetLostTerrainFoliageWorkflow
         return source;
     }
 
-    public static void UpdateMappings(TerrainFoliageSpawner template, TerrainLayer[] targets, List<LayerMapping> mappings)
+    public static void UpdateMappings(
+        IReadOnlyList<TerrainFoliageRule> selectedRules,
+        TerrainLayer[] targets,
+        List<LayerMapping> mappings)
     {
-        var sources = template ? CollectSourceRules(template).Where(r => r && r.terrainLayer)
-            .Select(r => r.terrainLayer).Distinct().ToArray() : Array.Empty<TerrainLayer>();
+        TerrainLayer[] sources = NormaliseRules(selectedRules)
+            .Where(r => r.terrainLayer)
+            .Select(r => r.terrainLayer)
+            .Distinct()
+            .ToArray();
         mappings.RemoveAll(m => !sources.Contains(m.source));
         foreach (TerrainLayer source in sources)
         {
@@ -105,19 +112,12 @@ public static class GetLostTerrainFoliageWorkflow
         return token == null ? null : targets.FirstOrDefault(t => t.name.ToLowerInvariant().Contains(token));
     }
 
-    static TerrainFoliageRule[] CollectSourceRules(TerrainFoliageSpawner template)
+    public static TerrainFoliageRule[] FindDefaultRules()
     {
-        var result = template
-            ? template.Rules.Where(r => r).Distinct().ToList()
-            : new List<TerrainFoliageRule>();
-        var names = new HashSet<string>(
-            result.Select(r => RuleIdentity(r.name)),
-            StringComparer.OrdinalIgnoreCase);
-
         string[] guids = AssetDatabase.FindAssets(
             "t:TerrainFoliageRule",
             new[] { DefaultRuleFolder });
-        foreach (string path in guids.Select(AssetDatabase.GUIDToAssetPath)
+        return guids.Select(AssetDatabase.GUIDToAssetPath)
             .Where(path => string.Equals(
                 Path.GetDirectoryName(path)?.Replace('\\', '/'),
                 DefaultRuleFolder,
@@ -126,39 +126,42 @@ public static class GetLostTerrainFoliageWorkflow
                 "JUST", StringComparison.OrdinalIgnoreCase))
             .Where(path => path.IndexOf(
                 "LOD TESTING", StringComparison.OrdinalIgnoreCase) < 0)
-            .OrderBy(path => path, StringComparer.OrdinalIgnoreCase))
-        {
-            var rule = AssetDatabase.LoadAssetAtPath<TerrainFoliageRule>(path);
-            if (rule && names.Add(RuleIdentity(rule.name))) result.Add(rule);
-        }
-
-        return result.ToArray();
+            .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+            .Select(AssetDatabase.LoadAssetAtPath<TerrainFoliageRule>)
+            .Where(rule => rule)
+            .ToArray();
     }
 
-    static string RuleIdentity(string name)
+    static TerrainFoliageRule[] NormaliseRules(
+        IReadOnlyList<TerrainFoliageRule> selectedRules)
     {
-        const string suffix = " (World)";
-        return name != null && name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
-            ? name.Substring(0, name.Length - suffix.Length)
-            : name ?? string.Empty;
+        return selectedRules == null
+            ? Array.Empty<TerrainFoliageRule>()
+            : selectedRules.Where(rule => rule).Distinct().ToArray();
     }
 
     public static string CreateAndSynchronise(
         GameObject root,
         TerrainFoliageSpawner template,
+        IReadOnlyList<TerrainFoliageRule> selectedRules,
         List<LayerMapping> mappings)
     {
-        return Run(root, template, mappings, false);
+        return Run(root, template, selectedRules, mappings, false);
     }
 
-    public static string Generate(GameObject root, TerrainFoliageSpawner template, List<LayerMapping> mappings)
+    public static string Generate(
+        GameObject root,
+        TerrainFoliageSpawner template,
+        IReadOnlyList<TerrainFoliageRule> selectedRules,
+        List<LayerMapping> mappings)
     {
-        return Run(root, template, mappings, true);
+        return Run(root, template, selectedRules, mappings, true);
     }
 
     static string Run(
         GameObject root,
         TerrainFoliageSpawner template,
+        IReadOnlyList<TerrainFoliageRule> selectedRules,
         List<LayerMapping> mappings,
         bool generatePlacements)
     {
@@ -167,7 +170,7 @@ public static class GetLostTerrainFoliageWorkflow
             throw new InvalidOperationException("Choose a terrain world in the scene and a configured foliage settings source.");
         Terrain[] terrains = root.GetComponentsInChildren<Terrain>(true)
             .OrderBy(t => t.transform.position.z).ThenBy(t => t.transform.position.x).ToArray();
-        TerrainFoliageRule[] sourceRules = CollectSourceRules(template);
+        TerrainFoliageRule[] sourceRules = NormaliseRules(selectedRules);
         if (terrains.Length == 0 || sourceRules.Length == 0)
             throw new InvalidOperationException("The world needs Terrain tiles and the settings source needs assigned foliage rules.");
         foreach (var rule in sourceRules)
@@ -205,8 +208,9 @@ public static class GetLostTerrainFoliageWorkflow
         {
             string sourcePath = AssetDatabase.GetAssetPath(source);
             string guid = AssetDatabase.AssetPathToGUID(sourcePath);
-            string path = sourcePath.StartsWith(folder + "/Rule-", StringComparison.Ordinal)
-                ? sourcePath : $"{folder}/Rule-{guid}.asset";
+            string path = GetReadableWorldRulePath(folder, sourcePath);
+            if (!sourcePath.StartsWith(folder + "/", StringComparison.Ordinal))
+                path = FindOrMigrateWorldRuleCopy(folder, path, guid, source.name);
             var copy = AssetDatabase.LoadAssetAtPath<TerrainFoliageRule>(path);
             if (!copy)
             {
@@ -217,11 +221,13 @@ public static class GetLostTerrainFoliageWorkflow
             if (source != copy)
             {
                 EditorUtility.CopySerialized(source, copy);
-                copy.name = source.name + " (World)";
+                copy.name = source.name;
             }
             copy.terrainLayer = mappings.First(m => m.source == source.terrainLayer).target;
             EditorUtility.SetDirty(copy);
             AssetDatabase.SaveAssetIfDirty(copy);
+            if (source != copy)
+                SetGeneratedRuleSourceGuid(path, guid);
             worldRules.Add(copy);
         }
 
@@ -357,5 +363,116 @@ public static class GetLostTerrainFoliageWorkflow
             EditorUtility.ClearProgressBar();
             SceneView.RepaintAll();
         }
+    }
+
+    static string GetReadableWorldRulePath(string folder, string sourcePath)
+    {
+        string fileName = Path.GetFileName(sourcePath);
+        if (string.IsNullOrEmpty(fileName))
+            throw new InvalidOperationException("A selected foliage rule has no asset filename.");
+        return $"{folder}/{fileName}";
+    }
+
+    static string FindOrMigrateWorldRuleCopy(
+        string folder,
+        string readablePath,
+        string sourceGuid,
+        string sourceName)
+    {
+        TerrainFoliageRule readable =
+            AssetDatabase.LoadAssetAtPath<TerrainFoliageRule>(readablePath);
+        if (readable)
+        {
+            string marker = AssetImporter.GetAtPath(readablePath)?.userData;
+            bool readableNameMatches =
+                string.Equals(readable.name, sourceName, StringComparison.Ordinal) ||
+                string.Equals(
+                    readable.name,
+                    sourceName + " (World)",
+                    StringComparison.Ordinal);
+            if ((string.IsNullOrEmpty(marker) && readableNameMatches) ||
+                string.Equals(
+                    marker,
+                    GeneratedRuleSourceMarker(sourceGuid),
+                    StringComparison.Ordinal))
+            {
+                return readablePath;
+            }
+
+            throw new InvalidOperationException(
+                $"Two selected foliage rules would use the same generated filename " +
+                $"'{Path.GetFileName(readablePath)}'. Rename one source rule asset first.");
+        }
+
+        string existingPath = FindGeneratedRulePath(folder, sourceGuid, sourceName);
+        if (string.IsNullOrEmpty(existingPath))
+            return readablePath;
+
+        string moveError = AssetDatabase.MoveAsset(existingPath, readablePath);
+        if (!string.IsNullOrEmpty(moveError))
+        {
+            throw new InvalidOperationException(
+                $"Could not give generated foliage rule '{sourceName}' its readable filename: " +
+                moveError);
+        }
+
+        return readablePath;
+    }
+
+    static string FindGeneratedRulePath(
+        string folder,
+        string sourceGuid,
+        string sourceName)
+    {
+        string sourceMarker = GeneratedRuleSourceMarker(sourceGuid);
+        string[] candidatePaths = AssetDatabase.FindAssets(
+                "t:TerrainFoliageRule",
+                new[] { folder })
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .Where(path => string.Equals(
+                Path.GetDirectoryName(path)?.Replace('\\', '/'),
+                folder,
+                StringComparison.Ordinal))
+            .ToArray();
+
+        string markedPath = candidatePaths.FirstOrDefault(path =>
+            string.Equals(
+                AssetImporter.GetAtPath(path)?.userData,
+                sourceMarker,
+                StringComparison.Ordinal));
+        if (!string.IsNullOrEmpty(markedPath))
+            return markedPath;
+
+        string legacyPath = $"{folder}/Rule-{sourceGuid}.asset";
+        if (AssetDatabase.LoadAssetAtPath<TerrainFoliageRule>(legacyPath))
+            return legacyPath;
+
+        return candidatePaths.FirstOrDefault(path =>
+        {
+            TerrainFoliageRule candidate =
+                AssetDatabase.LoadAssetAtPath<TerrainFoliageRule>(path);
+            return candidate &&
+                (string.Equals(candidate.name, sourceName, StringComparison.Ordinal) ||
+                 string.Equals(candidate.name, sourceName + " (World)", StringComparison.Ordinal));
+        });
+    }
+
+    static void SetGeneratedRuleSourceGuid(string path, string sourceGuid)
+    {
+        AssetImporter importer = AssetImporter.GetAtPath(path);
+        if (importer == null)
+            return;
+
+        string marker = GeneratedRuleSourceMarker(sourceGuid);
+        if (string.Equals(importer.userData, marker, StringComparison.Ordinal))
+            return;
+
+        importer.userData = marker;
+        importer.SaveAndReimport();
+    }
+
+    static string GeneratedRuleSourceMarker(string sourceGuid)
+    {
+        return "GetLostTerrainSourceRule=" + sourceGuid;
     }
 }

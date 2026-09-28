@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using FoliageRule = Thomas.TerrainFoliageSpawner.TerrainFoliageRule;
 using FoliageSpawner = Thomas.TerrainFoliageSpawner.TerrainFoliageSpawner;
 
 /// <summary>
@@ -78,6 +79,8 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
     [SerializeField] int terrainPhysicsLayer;
     [SerializeField] string outputRoot = DefaultOutput;
     [SerializeField] FoliageSpawner foliageTemplate;
+    [SerializeField] List<FoliageRule> foliageRules = new();
+    [SerializeField] bool foliageRuleSelectionInitialised;
     [SerializeField] GameObject foliageWorldRoot;
     [SerializeField] bool automaticallyPrepareFoliage = true;
     [SerializeField] List<GetLostTerrainFoliageWorkflow.LayerMapping> foliageLayerMappings = new();
@@ -158,6 +161,13 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
     void OnEnable()
     {
         if (!foliageTemplate) foliageTemplate = GetLostTerrainFoliageWorkflow.FindTemplate();
+        foliageRules ??= new List<FoliageRule>();
+        if (!foliageRuleSelectionInitialised)
+        {
+            foliageRules.Clear();
+            foliageRules.AddRange(GetLostTerrainFoliageWorkflow.FindDefaultRules());
+            foliageRuleSelectionInitialised = true;
+        }
         grassLayer ??= AssetDatabase.LoadAssetAtPath<TerrainLayer>("Assets/Proxy Games/Stylized Nature Kit Lite/Terrain/Grass.terrainlayer");
         soilLayer ??= AssetDatabase.LoadAssetAtPath<TerrainLayer>("Assets/Proxy Games/Stylized Nature Kit Lite/Terrain/Dirt.terrainlayer");
         rockLayer ??= AssetDatabase.LoadAssetAtPath<TerrainLayer>("Assets/Proxy Games/Stylized Nature Kit Lite/Terrain/Rock.terrainlayer");
@@ -217,8 +227,9 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
                 "Creates and synchronizes foliage spawners as soon as a new terrain world is generated."),
             automaticallyPrepareFoliage);
         foliageTemplate = (FoliageSpawner)EditorGUILayout.ObjectField(
-            new GUIContent("Optional Settings Source", "An existing spawner whose sampling and rendering settings should be reused. If empty, the generator creates one and assigns the production foliage rules."),
+            new GUIContent("Optional Settings Source", "An existing spawner whose sampling and rendering settings should be reused. If empty, setup creates one and assigns the rules selected below."),
             foliageTemplate, typeof(FoliageSpawner), true);
+        DrawFoliageRuleSelection();
         foliageWorldRoot = (GameObject)EditorGUILayout.ObjectField(
             new GUIContent("Terrain World Root", "Automatically filled after terrain generation. You can also assign an existing generated world's parent object."),
             foliageWorldRoot, typeof(GameObject), true);
@@ -229,7 +240,10 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
         TerrainLayer[] targetLayers = targets.Length > 0
             ? targets.Where(t => t.terrainData).SelectMany(t => t.terrainData.terrainLayers).Where(l => l).Distinct().ToArray()
             : UniqueLayers();
-        GetLostTerrainFoliageWorkflow.UpdateMappings(foliageTemplate, targetLayers, foliageLayerMappings);
+        GetLostTerrainFoliageWorkflow.UpdateMappings(
+            foliageRules,
+            targetLayers,
+            foliageLayerMappings);
         if (foliageLayerMappings.Count > 0)
         {
             EditorGUILayout.LabelField("Foliage Rule → Generated Surface", EditorStyles.miniBoldLabel);
@@ -242,7 +256,7 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
             }
         }
         EditorGUILayout.HelpBox(
-            $"Target chunks: {targets.Length}. Setup creates a spawner and placement asset for every chunk, assigns world-local copies of all production foliage rules, and synchronizes every required prototype across the whole world.",
+            $"Target chunks: {targets.Length}. Setup creates a spawner and placement asset for every chunk, assigns readable world-local copies of the {foliageRules.Count(rule => rule)} selected foliage rules, and synchronizes their required prototypes across the whole world.",
             MessageType.Info);
 
         using (new EditorGUI.DisabledScope(targets.Length == 0 || Application.isPlaying))
@@ -263,7 +277,7 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
             }
         }
 
-        bool ready = foliageTemplate && foliageTemplate.Rules.Any(r => r) && targets.Length > 0 &&
+        bool ready = foliageTemplate && foliageRules.Any(rule => rule) && targets.Length > 0 &&
             foliageLayerMappings.Count > 0 && foliageLayerMappings.All(m => m.target);
         using (new EditorGUI.DisabledScope(!ready || Application.isPlaying))
         {
@@ -271,7 +285,11 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
             {
                 try
                 {
-                    foliageStatus = GetLostTerrainFoliageWorkflow.Generate(foliageWorldRoot, foliageTemplate, foliageLayerMappings);
+                    foliageStatus = GetLostTerrainFoliageWorkflow.Generate(
+                        foliageWorldRoot,
+                        foliageTemplate,
+                        foliageRules,
+                        foliageLayerMappings);
                 }
                 catch (Exception exception)
                 {
@@ -285,11 +303,59 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
         EditorGUILayout.HelpBox(foliageStatus, MessageType.None);
     }
 
+    void DrawFoliageRuleSelection()
+    {
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Foliage Rules To Use", EditorStyles.miniBoldLabel);
+
+        int removeIndex = -1;
+        for (int i = 0; i < foliageRules.Count; i++)
+        {
+            EditorGUILayout.BeginHorizontal();
+            foliageRules[i] = (FoliageRule)EditorGUILayout.ObjectField(
+                $"Rule {i + 1}",
+                foliageRules[i],
+                typeof(FoliageRule),
+                false);
+            if (GUILayout.Button("−", GUILayout.Width(24f)))
+                removeIndex = i;
+            EditorGUILayout.EndHorizontal();
+        }
+        if (removeIndex >= 0)
+            foliageRules.RemoveAt(removeIndex);
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Add Rule"))
+            foliageRules.Add(null);
+        if (GUILayout.Button("Use Source Rules"))
+        {
+            foliageRules.Clear();
+            if (foliageTemplate)
+                foliageRules.AddRange(foliageTemplate.Rules.Where(rule => rule));
+        }
+        if (GUILayout.Button("Production Defaults"))
+        {
+            foliageRules.Clear();
+            foliageRules.AddRange(GetLostTerrainFoliageWorkflow.FindDefaultRules());
+        }
+        if (GUILayout.Button("Clear"))
+            foliageRules.Clear();
+        EditorGUILayout.EndHorizontal();
+
+        if (!foliageRules.Any(rule => rule))
+        {
+            EditorGUILayout.HelpBox(
+                "Choose at least one foliage rule. Only rules in this list will be copied and used for the generated terrain.",
+                MessageType.Warning);
+        }
+    }
+
     string CreateOrSyncFoliageSpawners()
     {
         foliageTemplate = GetLostTerrainFoliageWorkflow.EnsureSettingsSource(
             foliageWorldRoot,
-            foliageTemplate);
+            foliageTemplate,
+            foliageRules);
         Terrain[] targets = foliageWorldRoot
             .GetComponentsInChildren<Terrain>(true);
         TerrainLayer[] targetLayers = targets
@@ -299,7 +365,7 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
             .Distinct()
             .ToArray();
         GetLostTerrainFoliageWorkflow.UpdateMappings(
-            foliageTemplate,
+            foliageRules,
             targetLayers,
             foliageLayerMappings);
 
@@ -314,6 +380,7 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
         return GetLostTerrainFoliageWorkflow.CreateAndSynchronise(
             foliageWorldRoot,
             foliageTemplate,
+            foliageRules,
             foliageLayerMappings);
     }
 
