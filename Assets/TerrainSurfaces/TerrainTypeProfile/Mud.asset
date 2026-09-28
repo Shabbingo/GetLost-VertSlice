@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690c5b09219dea663143e8472ef813b0, type: 3}
+  m_Name: Mud
+  m_EditorClassIdentifier: Tom.WalkingController::Tom.WalkingController.TerrainSurfaceProfile
+  displayName: Surface
+  speedMultiplier: 0.72
+  accelerationMultiplier: 0.65
+  traction: 0.55
+  footingLossMultiplier: 1.6
+  exertionMultiplier: 1.3
+  footstepNoiseMultiplier: 1
+  cameraBobMultiplier: 1.529
+  downhillSlideMultiplier: 1.25
+  overrideSlideStartAngle: 1
+  slideStartAngle: 40
+  footstepClips:
+  - {fileID: 8300000, guid: e3edc2a270af5c04886ab9c5fa4fced6, type: 3}
+  - {fileID: 8300000, guid: 59dcb693bbd385e49aa6fa7ffd2f0f9f, type: 3}
+  - {fileID: 8300000, guid: 64a3500e0328dba43a0bc91e55dcef3f, type: 3}
+  - {fileID: 8300000, guid: e702c6b7953d72f42a62778c969b44ce, type: 3}
+  - {fileID: 8300000, guid: c3a0d384acb5b9a4d8af0bee5d2820a6, type: 3}
+  - {fileID: 8300000, guid: 6af94a40fed40c44c82de5fb0fa561f2, type: 3}
+  - {fileID: 8300000, guid: 078fe382794838e43afb6bb0bca6c089, type: 3}
+  - {fileID: 8300000, guid: 6e6c9769d9509db4e8d892892f70aa11, type: 3}
+  - {fileID: 8300000, guid: 28b19276079fa4548a5d5a92b6291501, type: 3}
+  - {fileID: 8300000, guid: 1300a1f7bbbf3f140aee0da44ba85694, type: 3}
+  footstepVolume: 0.75
+  minimumFootstepPitch: 0.96
+  maximumFootstepPitch: 1.04
+  stepDistanceMultiplier: 1
+  slideLoop: {fileID: 8300000, guid: efa8d9408cf5dd1469f24a64eabb7b0d, type: 3}
+  slideVolume: 0.75
+  slidePitch: 1
+  vegetationRustleClips:
+  - {fileID: 8300000, guid: 50ad27f2e46a7074e9864dbad1e7eade, type: 3}
+  - {fileID: 8300000, guid: c758d50866c38364395e6497487c1af3, type: 3}
+  - {fileID: 8300000, guid: 88836c252240bf148b51f31eaa40423b, type: 3}
+  - {fileID: 8300000, guid: 7b0242fe2eb831e4cbf3bada890a9dcd, type: 3}
+  - {fileID: 8300000, guid: 5110f81119d96ea47b2e9a45875c1156, type: 3}
+  - {fileID: 8300000, guid: 2ee7a4274d261bf43bb411f2eae2561c, type: 3}
+  vegetationRustleVolume: 0.55
+  vegetationRustleInterval: 0.65
+  footstepParticlePrefab: {fileID: 0}
+  particleLifetime: 2

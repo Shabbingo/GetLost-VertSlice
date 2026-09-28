@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b1863a4008828fa41f8ce7bb4db129a, type: 3}
+  m_Name: Terrain Layer Surface Map
+  m_EditorClassIdentifier: Tom.WalkingController::Tom.WalkingController.TerrainLayerSurfaceMap
+  entries:
+  - terrainLayer: {fileID: 8574412962073106934, guid: af0b394808aad06489f9616b8dcf2d94, type: 2}
+    surfaceProfile: {fileID: 11400000, guid: b50fe2c7a023f44479cad67c2baf60ed, type: 2}
+  - terrainLayer: {fileID: 8574412962073106934, guid: 28e9e1764a0da394aafccf74e515190e, type: 2}
+    surfaceProfile: {fileID: 11400000, guid: 96db7d2ff63e7914cbf4af111d454665, type: 2}
+  - terrainLayer: {fileID: 8574412962073106934, guid: 97cb772b9c35c464dbb75953eda71fb3, type: 2}
+    surfaceProfile: {fileID: 11400000, guid: ac9a0afd9062f534f875ba89e13ffee1, type: 2}
+  - terrainLayer: {fileID: 8574412962073106934, guid: bca3207d0a8055045bbd0985eb2619ad, type: 2}
+    surfaceProfile: {fileID: 11400000, guid: 96db7d2ff63e7914cbf4af111d454665, type: 2}
+  - terrainLayer: {fileID: 8574412962073106934, guid: 9e2af62ad627a61409b77d0c1a020feb, type: 2}
+    surfaceProfile: {fileID: 11400000, guid: 9cc748d8e86dbc34aadacae54627cdf1, type: 2}

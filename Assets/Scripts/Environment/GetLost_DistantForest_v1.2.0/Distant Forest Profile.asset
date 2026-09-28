@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 741091461db223a4fa1edeba155eef13, type: 3}
+  m_Name: Distant Forest Profile
+  m_EditorClassIdentifier: Assembly-CSharp::GetLost.EnvironmentSystem.GetLostDistantForestProfile
+  fadeInStart: 450
+  fullyVisibleDistance: 650
+  fadeOutStart: 2200
+  maximumDistance: 3000
+  density: 0.4
+  cellSize: 300
+  useSourceTreeMeshes: 1
+  fallbackToProceduralProxy: 1
+  lodStepsFromLowest: 0
+  widthMultiplier: 1
+  heightMultiplier: 1
+  sizeVariation: 0.06
+  verticalOffset: -1.2
+  fallbackTreeWidth: 6
+  fallbackTreeHeight: 14
+  minimumTreeHeight: 17.67
+  maximumTreeHeight: 40
+  fallbackCanopyShape: 0.45
+  sourceColourMultiplier: {r: 1, g: 1, b: 1, a: 1}
+  atmosphereTint: {r: 0.48, g: 0.62, b: 0.56, a: 1}
+  atmosphereTintStrength: 0.05
+  brightness: 0.73
+  colourVariation: 0.204
+  textureMipBias: 1
+  edgeSoftness: 0.62
+  alphaCutoffOffset: -0.062
+  sceneLightingStrength: 0.633
+  customFogIntegration: 0
+  heightFogSoftness: 1.8
+  heightFogBlendAboveTop: 18
+  treeBaseFogging: 0.72
+  treeBaseFogHeightBias: -2
+  heightFogCompensation: 0.9
+  heightFogCompensationLimit: 0.35
+  heightFogColourInfluence: 0.28
+  horizonFadeStart: 0.48
+  horizonFadeStrength: 0.32
+  fallbackAlphaCutoff: 0.35
+  castShadows: 0
+  receiveShadows: 1

@@ -1,0 +1,29 @@
+{
+  "name": "com.tom.path-creator",
+  "version": "0.7.7",
+  "displayName": "Tom's Path Creator",
+  "description": "Runtime and editor Bezier trails for Unity, including trail sessions, multi-terrain establishment, terrain deformation, mesh generation, and foliage clearance.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Thomas McHugh-Mackay"
+  },
+  "keywords": [
+    "path",
+    "spline",
+    "bezier",
+    "trail",
+    "runtime"
+  ],
+  "samples": [
+    {
+      "displayName": "Basic Path",
+      "description": "A simple example showing how to create and sample a path.",
+      "path": "Samples~/Basic Path"
+    },
+    {
+      "displayName": "Trail Session",
+      "description": "Setup guidance for recording and establishing a player trail.",
+      "path": "Samples~/Trail Session"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "com.tom.walking-controller",
+  "version": "4.0.2",
+  "displayName": "Engaging Walking Controller",
+  "description": "Upgrade-safe modular first-person walking framework with a stackable spring-based camera effects system, terrain surfaces, body-drop slip feedback, hidden footing, sprint-sensitive slipping, footsteps and unified vegetation interaction.",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.unity.inputsystem": "1.11.2"
+  },
+  "keywords": [
+    "character controller",
+    "walking",
+    "terrain",
+    "slope",
+    "footsteps",
+    "vegetation",
+    "terrain details",
+    "unified vegetation",
+    "terrain detail mapping",
+    "hidden footing",
+    "grip",
+    "slipping",
+    "footing feedback",
+    "vignette",
+    "camera effects",
+    "camera stack",
+    "camera spring"
+  ],
+  "author": {
+    "name": "Tom McHugh-Mackay"
+  }
+}

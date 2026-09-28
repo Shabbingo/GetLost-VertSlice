@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80f52c1ad54be314d83e86e0983df3cf, type: 3}
+  m_Name: TrailSystemSettings
+  m_EditorClassIdentifier: Assembly-CSharp::GetLost.Trails.TrailSystemSettings
+  sampleSpacing: 1.5
+  sampleInterval: 0.15
+  minimumSamplesToFinish: 8
+  trailWidth: 2
+  textureBlendWidth: 1
+  deformTerrain: 1
+  lowerByMetres: 0.08
+  flattenStrength: 1
+  maximumFillMetres: 0.25
+  maximumCutMetres: 0.75
+  deformationFalloffWidth: 0.8
+  paintPathTexture: 1
+  pathTerrainLayerIndex: 4
+  pathTextureStrength: 1
+  clearFoliage: 1
+  foliageClearancePadding: 4
+  terrainDetailClearancePadding: 4
+  clearTerrainTrees: 1
+  clearTerrainDetails: 1
+  clearSpawnedGameObjects: 1
+  buildSectionLength: 8
+  buildTimeBudgetMs: 3
+  overlapSectionEdges: 1
+  useDelayedHeightmapLOD: 1
+  restoreTerrainAfterPlayMode: 1
+  clearTrailSaveOnPlayModeStart: 1
+  saveFileName: getlost_trails.json
+  drawRecordedPath: 1
+  logBuildProgress: 0

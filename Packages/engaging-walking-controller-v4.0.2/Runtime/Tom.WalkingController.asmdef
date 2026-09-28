@@ -1,0 +1,17 @@
+{
+  "name": "Tom.WalkingController",
+  "rootNamespace": "Tom.WalkingController",
+  "references": [
+    "Unity.InputSystem",
+    "GUID:aa41ae63826640cba3b07851ebd0c253"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

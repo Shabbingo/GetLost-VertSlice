@@ -1,0 +1,14 @@
+{
+  "name": "Thomas.TerrainFoliageSpawner.Runtime",
+  "rootNamespace": "Thomas.TerrainFoliageSpawner",
+  "references": ["Unity.Splines"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

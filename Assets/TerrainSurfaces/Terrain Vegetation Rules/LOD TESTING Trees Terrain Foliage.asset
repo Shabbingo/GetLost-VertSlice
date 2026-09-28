@@ -1,0 +1,222 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33f6dd97a34a48a5950bb1234e18fda4, type: 3}
+  m_Name: LOD TESTING Trees Terrain Foliage
+  m_EditorClassIdentifier: Thomas.TerrainFoliageSpawner.Runtime::Thomas.TerrainFoliageSpawner.TerrainFoliageRule
+  terrainLayer: {fileID: 8574412962073106934, guid: 97cb772b9c35c464dbb75953eda71fb3, type: 2}
+  minimumLayerWeight: 0.1
+  prefabEntries:
+  - prefab: {fileID: 5006933469076557581, guid: 49cd95af00297ae4d887ae9348e5d342, type: 3}
+    weight: 10
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5006933469076557581, guid: 66d8b106b60b79c4b9b6ec188aab46bc, type: 3}
+    weight: 15
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5006933469076557581, guid: d03ef9daa8f22654a9a6a5dc5bc08aea, type: 3}
+    weight: 40
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5006933469076557581, guid: 3bec44ee2cb83a64a831bcf18ddc841a, type: 3}
+    weight: 50
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5006933469076557581, guid: 09f24c508fd22f644892181d1ee5cd74, type: 3}
+    weight: 10
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5006933469076557581, guid: 562b3da7f7abb864883914c9399c8ef0, type: 3}
+    weight: 10
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5006933469076557581, guid: a86e7ced33c0ab548bfa9fdd659bd0c0, type: 3}
+    weight: 40
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5006933469076557581, guid: 985f85ff64b6df34cba96b263d1b0772, type: 3}
+    weight: 50
+    outputMode: 2
+    gameObjectStorageMode: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  spawnChance: 0.658
+  useSlopeLimit: 1
+  minimumSlope: 0
+  maximumSlope: 30.6
+  alignToTerrainNormal: 1
+  randomYRotation: 1
+  minimumScale: 0.4
+  maximumScale: 1.5
+  prefabs: []
+  prefabWeights: []
+  prefabPositionOffsets: []
+  prefabRotationOffsets: []
+  prefabScaleMultipliers: []

@@ -1,0 +1,16 @@
+{
+    "name": "AD_MapGen_V6",
+    "rootNamespace": "",
+    "references": [
+        "GUID:bfe6d2225f374a84bbe6aadb0a0c7fa0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

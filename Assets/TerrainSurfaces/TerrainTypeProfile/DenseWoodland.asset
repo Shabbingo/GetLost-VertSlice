@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690c5b09219dea663143e8472ef813b0, type: 3}
+  m_Name: DenseWoodland
+  m_EditorClassIdentifier: Tom.WalkingController::Tom.WalkingController.TerrainSurfaceProfile
+  displayName: Surface
+  speedMultiplier: 0.55
+  accelerationMultiplier: 0.6
+  traction: 0.9
+  footingLossMultiplier: 1
+  exertionMultiplier: 1.5
+  footstepNoiseMultiplier: 1
+  cameraBobMultiplier: 1
+  downhillSlideMultiplier: 0.9
+  overrideSlideStartAngle: 0
+  slideStartAngle: 40
+  footstepClips:
+  - {fileID: 8300000, guid: 50ad27f2e46a7074e9864dbad1e7eade, type: 3}
+  - {fileID: 8300000, guid: c758d50866c38364395e6497487c1af3, type: 3}
+  - {fileID: 8300000, guid: 88836c252240bf148b51f31eaa40423b, type: 3}
+  - {fileID: 8300000, guid: 7b0242fe2eb831e4cbf3bada890a9dcd, type: 3}
+  - {fileID: 8300000, guid: 5110f81119d96ea47b2e9a45875c1156, type: 3}
+  - {fileID: 8300000, guid: 2ee7a4274d261bf43bb411f2eae2561c, type: 3}
+  footstepVolume: 0.75
+  minimumFootstepPitch: 0.96
+  maximumFootstepPitch: 1.04
+  stepDistanceMultiplier: 1
+  slideLoop: {fileID: 0}
+  slideVolume: 0.75
+  slidePitch: 1
+  vegetationRustleClips:
+  - {fileID: 8300000, guid: ad5de75eeb6f27a49a13d399389a8f7b, type: 3}
+  - {fileID: 8300000, guid: 6608750bb84f23446a146d6a1529c03f, type: 3}
+  - {fileID: 8300000, guid: 1f0c1a78d4716d148a54135cc0f4f952, type: 3}
+  - {fileID: 8300000, guid: 4556f410625310c41b03e2f828e7962c, type: 3}
+  - {fileID: 8300000, guid: fcbb5c4d4b88dab4196aa78093d897b4, type: 3}
+  - {fileID: 8300000, guid: 1fb63af572f3ebb469e2d7709aaf8a7c, type: 3}
+  - {fileID: 8300000, guid: 926831fad7b7b2d4e872a783e1dff180, type: 3}
+  - {fileID: 8300000, guid: 0c4726bd3866ab840a1cf5b807849c4f, type: 3}
+  - {fileID: 8300000, guid: ed15a29e723b7214ea43525973cdb6bb, type: 3}
+  vegetationRustleVolume: 0.55
+  vegetationRustleInterval: 0.65
+  footstepParticlePrefab: {fileID: 0}
+  particleLifetime: 2
