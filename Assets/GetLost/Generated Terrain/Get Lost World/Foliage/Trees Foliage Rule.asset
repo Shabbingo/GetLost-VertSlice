@@ -423,20 +423,20 @@ MonoBehaviour:
   cliffFaceMaximumDepthScale: 3.5
   cliffFaceEmbedDepth: 2.5
   cliffFaceYawJitter: 8
-  useNaturalTreeDensityVariation: 0
+  useNaturalTreeDensityVariation: 1
   naturalTreePatchSize: 260
   minimumNaturalTreeDensity: 0.08
   maximumNaturalTreeDensity: 1
   naturalTreeDensityContrast: 0.75
   naturalTreeDomainWarp: 0.4
-  followNaturalForestDensity: 0
-  useUnderstoryThickets: 0
+  followNaturalForestDensity: 1
+  useUnderstoryThickets: 1
   understoryThicketSize: 24
   minimumUnderstoryThicketDensity: 0.08
   maximumUnderstoryThicketDensity: 1
   understoryThicketContrast: 0.75
   understoryThicketDomainWarp: 0.55
-  useGentleGroundMeadows: 0
+  useGentleGroundMeadows: 1
   meadowMaximumSlope: 14
   meadowRadiusBonus: 3
   meadowDensityMultiplier: 1.15
