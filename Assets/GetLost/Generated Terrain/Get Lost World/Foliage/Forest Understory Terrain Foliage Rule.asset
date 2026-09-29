@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33f6dd97a34a48a5950bb1234e18fda4, type: 3}
-  m_Name: Forest Understory Terrain Foliage Rule (World)
+  m_Name: Forest Understory Terrain Foliage Rule
   m_EditorClassIdentifier: Thomas.TerrainFoliageSpawner.Runtime::Thomas.TerrainFoliageSpawner.TerrainFoliageRule
   terrainLayer: {fileID: 8574412962073106934, guid: 97cb772b9c35c464dbb75953eda71fb3, type: 2}
   minimumLayerWeight: 0.25

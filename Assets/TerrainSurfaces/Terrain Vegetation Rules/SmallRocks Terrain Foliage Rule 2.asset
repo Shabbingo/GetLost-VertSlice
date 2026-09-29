@@ -120,7 +120,7 @@ MonoBehaviour:
   - prefab: {fileID: 5562120981366406150, guid: 5e22b7b648db416992393ba565d02bfe, type: 3}
     weight: 6
     outputMode: 0
-    gameObjectStorageMode: 0
+    gameObjectStorageMode: 1
     alignToTerrainNormal: 1
     randomYRotation: 1
     positionOffset: {x: 0, y: 0, z: 0}
@@ -154,7 +154,7 @@ MonoBehaviour:
   - prefab: {fileID: 3985788450935348801, guid: 5eb953374c7d4e6c9735e40ebd2eb388, type: 3}
     weight: 6
     outputMode: 0
-    gameObjectStorageMode: 0
+    gameObjectStorageMode: 1
     alignToTerrainNormal: 1
     randomYRotation: 1
     positionOffset: {x: 0, y: 0, z: 0}

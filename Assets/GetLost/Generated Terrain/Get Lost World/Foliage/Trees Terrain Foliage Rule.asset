@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33f6dd97a34a48a5950bb1234e18fda4, type: 3}
-  m_Name: Trees Foliage Rule
+  m_Name: Trees Terrain Foliage Rule
   m_EditorClassIdentifier: Thomas.TerrainFoliageSpawner.Runtime::Thomas.TerrainFoliageSpawner.TerrainFoliageRule
   terrainLayer: {fileID: 8574412962073106934, guid: 97cb772b9c35c464dbb75953eda71fb3, type: 2}
   minimumLayerWeight: 0.1
@@ -424,19 +424,19 @@ MonoBehaviour:
   cliffFaceEmbedDepth: 2.5
   cliffFaceYawJitter: 8
   useNaturalTreeDensityVariation: 1
-  naturalTreePatchSize: 260
+  naturalTreePatchSize: 25
   minimumNaturalTreeDensity: 0.08
   maximumNaturalTreeDensity: 1
   naturalTreeDensityContrast: 0.75
   naturalTreeDomainWarp: 0.4
   followNaturalForestDensity: 1
   useUnderstoryThickets: 1
-  understoryThicketSize: 24
+  understoryThicketSize: 9.9
   minimumUnderstoryThicketDensity: 0.08
   maximumUnderstoryThicketDensity: 1
   understoryThicketContrast: 0.75
   understoryThicketDomainWarp: 0.55
-  useGentleGroundMeadows: 1
+  useGentleGroundMeadows: 0
   meadowMaximumSlope: 14
   meadowRadiusBonus: 3
   meadowDensityMultiplier: 1.15

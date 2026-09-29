@@ -43,7 +43,10 @@ namespace Thomas.TerrainFoliageSpawner
         [SerializeField, Min(1f)] private float shadowDistance = 65f;
 
         [Header("Colliders")]
+        [Tooltip("Keeps pooled foliage collision active only near the streaming target. The separate enable/disable distances prevent collider flicker at the boundary.")]
         [SerializeField] private bool disableCollidersOutsideActivation = true;
+        [SerializeField, Min(1f)] private float colliderActivationDistance = 35f;
+        [SerializeField, Min(1f)] private float colliderDeactivationDistance = 45f;
 
         private readonly Dictionary<Vector2Int, List<int>> chunks = new Dictionary<Vector2Int, List<int>>();
         private readonly Dictionary<int, RuntimeInstance> active = new Dictionary<int, RuntimeInstance>();
@@ -65,6 +68,7 @@ namespace Thomas.TerrainFoliageSpawner
             public Collider[] colliders;
             public bool renderersEnabled;
             public bool shadowsEnabled;
+            public bool collidersEnabled;
         }
 
         public TerrainFoliagePlacementData PlacementData
@@ -284,6 +288,10 @@ namespace Thomas.TerrainFoliageSpawner
 
             float renderSqr = rendererDistance * rendererDistance;
             float shadowSqr = shadowDistance * shadowDistance;
+            float colliderActivateSqr =
+                colliderActivationDistance * colliderActivationDistance;
+            float colliderDeactivateSqr =
+                colliderDeactivationDistance * colliderDeactivationDistance;
             Vector3 targetPosition = target.position;
 
             Plane[] frustumPlanes = null;
@@ -312,6 +320,11 @@ namespace Thomas.TerrainFoliageSpawner
 
                 Vector3 delta = runtime.gameObject.transform.position - targetPosition;
                 float horizontalSqr = delta.x * delta.x + delta.z * delta.z;
+                float colliderDistanceSqr =
+                    GetColliderDistanceSqr(
+                        runtime.colliders,
+                        targetPosition,
+                        horizontalSqr);
 
                 bool shouldRender =
                     !useRendererDistanceCulling ||
@@ -341,6 +354,19 @@ namespace Thomas.TerrainFoliageSpawner
                 {
                     SetShadowCasting(runtime, shouldCastShadows);
                     runtime.shadowsEnabled = shouldCastShadows;
+                    changes++;
+                }
+
+                bool shouldEnableColliders =
+                    !disableCollidersOutsideActivation ||
+                    (runtime.collidersEnabled
+                        ? colliderDistanceSqr <= colliderDeactivateSqr
+                        : colliderDistanceSqr <= colliderActivateSqr);
+
+                if (runtime.collidersEnabled != shouldEnableColliders)
+                {
+                    SetCollidersEnabled(runtime, shouldEnableColliders);
+                    runtime.collidersEnabled = shouldEnableColliders;
                     changes++;
                 }
             }
@@ -385,7 +411,8 @@ namespace Thomas.TerrainFoliageSpawner
                 renderers = instance.GetComponentsInChildren<Renderer>(true),
                 colliders = instance.GetComponentsInChildren<Collider>(true),
                 renderersEnabled = true,
-                shadowsEnabled = true
+                shadowsEnabled = true,
+                collidersEnabled = true
             };
 
             SetRenderersEnabled(runtime, true);
@@ -393,11 +420,8 @@ namespace Thomas.TerrainFoliageSpawner
 
             if (disableCollidersOutsideActivation && runtime.colliders != null)
             {
-                for (int i = 0; i < runtime.colliders.Length; i++)
-                {
-                    if (runtime.colliders[i] != null)
-                        runtime.colliders[i].enabled = true;
-                }
+                SetCollidersEnabled(runtime, false);
+                runtime.collidersEnabled = false;
             }
 
             active.Add(placementIndex, runtime);
@@ -416,6 +440,11 @@ namespace Thomas.TerrainFoliageSpawner
 
             Vector3 delta = runtime.gameObject.transform.position - target.position;
             float horizontalSqr = delta.x * delta.x + delta.z * delta.z;
+            float colliderDistanceSqr =
+                GetColliderDistanceSqr(
+                    runtime.colliders,
+                    target.position,
+                    horizontalSqr);
 
             bool shouldRender =
                 !useRendererDistanceCulling ||
@@ -443,6 +472,14 @@ namespace Thomas.TerrainFoliageSpawner
 
             SetShadowCasting(runtime, shouldCastShadows);
             runtime.shadowsEnabled = shouldCastShadows;
+
+            bool shouldEnableColliders =
+                !disableCollidersOutsideActivation ||
+                colliderDistanceSqr <=
+                colliderActivationDistance * colliderActivationDistance;
+
+            SetCollidersEnabled(runtime, shouldEnableColliders);
+            runtime.collidersEnabled = shouldEnableColliders;
         }
 
         private void Despawn(int placementIndex)
@@ -527,6 +564,50 @@ namespace Thomas.TerrainFoliageSpawner
                 if (renderer != null)
                     renderer.shadowCastingMode = mode;
             }
+        }
+
+        private static void SetCollidersEnabled(
+            RuntimeInstance runtime,
+            bool enabled)
+        {
+            if (runtime?.colliders == null)
+                return;
+
+            for (int i = 0; i < runtime.colliders.Length; i++)
+            {
+                Collider collider = runtime.colliders[i];
+
+                if (collider != null)
+                    collider.enabled = enabled;
+            }
+        }
+
+        private static float GetColliderDistanceSqr(
+            Collider[] colliders,
+            Vector3 targetPosition,
+            float fallbackDistanceSqr)
+        {
+            if (colliders == null || colliders.Length == 0)
+                return fallbackDistanceSqr;
+
+            float nearestSqr = float.PositiveInfinity;
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider collider = colliders[i];
+
+                if (collider == null)
+                    continue;
+
+                nearestSqr =
+                    Mathf.Min(
+                        nearestSqr,
+                        collider.bounds.SqrDistance(targetPosition));
+            }
+
+            return float.IsPositiveInfinity(nearestSqr)
+                ? fallbackDistanceSqr
+                : nearestSqr;
         }
 
         private bool AnyRendererInFrustum(Renderer[] renderers, Plane[] planes)
@@ -641,6 +722,15 @@ namespace Thomas.TerrainFoliageSpawner
 
             shadowDistance =
                 Mathf.Clamp(shadowDistance, 1f, rendererDistance);
+
+            colliderActivationDistance =
+                Mathf.Clamp(colliderActivationDistance, 1f, activationDistance);
+
+            colliderDeactivationDistance =
+                Mathf.Clamp(
+                    colliderDeactivationDistance,
+                    colliderActivationDistance,
+                    deactivationDistance);
 
             frustumBoundsPadding = Mathf.Max(0f, frustumBoundsPadding);
         }

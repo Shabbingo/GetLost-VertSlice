@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 465903050231211617}
   - component: {fileID: 5312709011635668359}
   - component: {fileID: 470000596875761618}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SM_RockPack_RockGroups_02_B_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7534200697675183075}
   - component: {fileID: 7990474776389745906}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PF_RockPack_RockGroups_02_B
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 7994700471903639700}
   - component: {fileID: 2176021789870440966}
   - component: {fileID: 8714825567394698868}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SM_RockPack_RockGroups_02_B_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -248,9 +248,9 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 1
+  m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1395000434151543888, guid: 650812babad14eafadffdb4304c6b1ac, type: 3}
+  m_Mesh: {fileID: -9205840308621053792, guid: 650812babad14eafadffdb4304c6b1ac, type: 3}
 --- !u!1 &6981353309588467198
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,7 +262,7 @@ GameObject:
   - component: {fileID: 941722831271543643}
   - component: {fileID: 556685649262024946}
   - component: {fileID: 548486081753009308}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SM_RockPack_RockGroups_02_B_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

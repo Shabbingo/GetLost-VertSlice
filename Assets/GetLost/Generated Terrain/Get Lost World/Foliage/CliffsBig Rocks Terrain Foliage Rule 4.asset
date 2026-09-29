@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33f6dd97a34a48a5950bb1234e18fda4, type: 3}
-  m_Name: CliffsBig Rocks Terrain Foliage Rule 4 (World)
+  m_Name: CliffsBig Rocks Terrain Foliage Rule 4
   m_EditorClassIdentifier: Thomas.TerrainFoliageSpawner.Runtime::Thomas.TerrainFoliageSpawner.TerrainFoliageRule
-  terrainLayer: {fileID: 8574412962073106934, guid: bca3207d0a8055045bbd0985eb2619ad, type: 2}
+  terrainLayer: {fileID: 8574412962073106934, guid: 28e9e1764a0da394aafccf74e515190e, type: 2}
   minimumLayerWeight: 0.1
   prefabEntries:
   - prefab: {fileID: 6536646777496294739, guid: abe5a99a55d54ae98572f53ab42ec3ad, type: 3}
@@ -225,29 +225,29 @@ MonoBehaviour:
     detailNoiseSpread: 0
     detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
     detailDryColor: {r: 0, g: 0, b: 0, a: 0}
-  spawnChance: 0.8
+  spawnChance: 0.683
   useCliffFormationDistribution: 1
   cliffSamplesPerCell: 1
-  cliffMinimumSlope: 38
-  cliffFullDensitySlope: 60
-  cliffReliefRadius: 10
-  cliffMinimumHeightDrop: 4
-  cliffFullHeightDrop: 12
-  cliffPatchSize: 90
-  minimumCliffPatchDensity: 0.45
+  cliffMinimumSlope: 28
+  cliffFullDensitySlope: 45
+  cliffReliefRadius: 18
+  cliffMinimumHeightDrop: 2.5
+  cliffFullHeightDrop: 9
+  cliffPatchSize: 140
+  minimumCliffPatchDensity: 1
   maximumCliffPatchDensity: 1
-  cliffPatchContrast: 0.55
-  cliffPatchDomainWarp: 0.45
+  cliffPatchContrast: 0.4
+  cliffPatchDomainWarp: 0.4
   buildContinuousCliffFaces: 1
-  cliffFaceSpacing: 18
-  cliffFaceMinimumWidthScale: 4
-  cliffFaceMaximumWidthScale: 7
+  cliffFaceSpacing: 8
+  cliffFaceMinimumWidthScale: 7
+  cliffFaceMaximumWidthScale: 11
   cliffFaceMinimumHeightScale: 5
   cliffFaceMaximumHeightScale: 9
-  cliffFaceMinimumDepthScale: 2
-  cliffFaceMaximumDepthScale: 3.5
-  cliffFaceEmbedDepth: 2.5
-  cliffFaceYawJitter: 8
+  cliffFaceMinimumDepthScale: 2.5
+  cliffFaceMaximumDepthScale: 4
+  cliffFaceEmbedDepth: 3.5
+  cliffFaceYawJitter: 5
   useNaturalTreeDensityVariation: 0
   naturalTreePatchSize: 260
   minimumNaturalTreeDensity: 0.08
@@ -266,9 +266,9 @@ MonoBehaviour:
   meadowRadiusBonus: 3
   meadowDensityMultiplier: 1.15
   additionalTerrainDetailSamplesPerCell: 0
-  useSlopeLimit: 1
-  minimumSlope: 35
-  maximumSlope: 90
+  useSlopeLimit: 0
+  minimumSlope: 0
+  maximumSlope: 89
   alignToTerrainNormal: 1
   randomYRotation: 1
   minimumScale: 0.8

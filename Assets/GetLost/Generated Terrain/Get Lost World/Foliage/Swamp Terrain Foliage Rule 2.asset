@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33f6dd97a34a48a5950bb1234e18fda4, type: 3}
-  m_Name: Swamp Terrain Foliage Rule 2 (World)
+  m_Name: Swamp Terrain Foliage Rule 2
   m_EditorClassIdentifier: Thomas.TerrainFoliageSpawner.Runtime::Thomas.TerrainFoliageSpawner.TerrainFoliageRule
   terrainLayer: {fileID: 8574412962073106934, guid: af0b394808aad06489f9616b8dcf2d94, type: 2}
   minimumLayerWeight: 1

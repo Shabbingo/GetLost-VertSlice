@@ -331,6 +331,11 @@ namespace GetLost.VerticalSlice.Editor
             FirstPersonLook look = player.GetComponentInChildren<FirstPersonLook>(true);
             Camera playerCamera = player.GetComponentInChildren<Camera>(true);
 
+            // ALT belongs to the radial wheel in the vertical slice. Leaving
+            // FirstPersonLook's legacy cursor-release shortcut enabled creates
+            // an update-order race: it can unlock the cursor before the wheel
+            // validates the press, causing the wheel to reject the same input.
+            SetBool(look, "holdAltToReleaseCursor", false);
             SetEnum(manager, "startingTool", (int)PlayerToolType.Compass);
             SetBool(manager, "selectingSameToolUnequips", true);
             SetObject(wheel, "toolManager", manager);

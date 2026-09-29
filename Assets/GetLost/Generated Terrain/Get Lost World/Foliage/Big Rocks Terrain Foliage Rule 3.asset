@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33f6dd97a34a48a5950bb1234e18fda4, type: 3}
-  m_Name: Big Rocks Terrain Foliage Rule 3 (World)
+  m_Name: Big Rocks Terrain Foliage Rule 3
   m_EditorClassIdentifier: Thomas.TerrainFoliageSpawner.Runtime::Thomas.TerrainFoliageSpawner.TerrainFoliageRule
   terrainLayer: {fileID: 8574412962073106934, guid: bca3207d0a8055045bbd0985eb2619ad, type: 2}
   minimumLayerWeight: 0.1
