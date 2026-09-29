@@ -27,7 +27,13 @@ public sealed class HeldMapPresentation : MonoBehaviour
 
     [Header("Close Reading Pose")]
     [SerializeField] private Vector3 focusedLocalPosition = new(0f, -0.055f, 0.56f);
-    [SerializeField] private Vector3 focusedLocalEuler = new(2f, 0f, 0f);
+    [SerializeField] private Vector3 focusedLocalEuler = Vector3.zero;
+
+    [Tooltip("Keeps the page square to the camera while RMB inspection is active, regardless of the camera's world pitch.")]
+    [SerializeField] private bool alignFocusedMapToCamera = true;
+
+    [Tooltip("Usually disabled: the normal look-down reveal can make the page oblique during close reading.")]
+    [SerializeField] private bool useLookDownRevealWhileFocused;
 
     [Header("Physical Size")]
     [SerializeField] private float heldScale = 0.0012f;
@@ -117,13 +123,20 @@ public sealed class HeldMapPresentation : MonoBehaviour
                 Mathf.Asin(Mathf.Clamp(-viewTransform.forward.y, -1f, 1f)) * Mathf.Rad2Deg);
         }
 
-        float revealAmount = Mathf.InverseLerp(
-            revealStartsAtPitch,
-            Mathf.Max(revealStartsAtPitch + 1f, fullRevealAtPitch),
-            downwardPitch);
-        targetPosition.y += lookDownLift * revealAmount;
-        targetPosition.z -= lookDownMoveCloser * revealAmount;
-        targetEuler.x -= downwardPitch * downwardPitchCompensation;
+        bool applyLookDownReveal = !focused || useLookDownRevealWhileFocused;
+        if (applyLookDownReveal)
+        {
+            float revealAmount = Mathf.InverseLerp(
+                revealStartsAtPitch,
+                Mathf.Max(revealStartsAtPitch + 1f, fullRevealAtPitch),
+                downwardPitch);
+            targetPosition.y += lookDownLift * revealAmount;
+            targetPosition.z -= lookDownMoveCloser * revealAmount;
+            targetEuler.x -= downwardPitch * downwardPitchCompensation;
+        }
+
+        if (focused && alignFocusedMapToCamera)
+            targetEuler = focusedLocalEuler;
 
         float movementSpeed = 0f;
         if (movementSource != null)
@@ -152,10 +165,12 @@ public sealed class HeldMapPresentation : MonoBehaviour
         Vector2 swayTarget = new(
             Mathf.Clamp(-mouseDelta.x * lookSwayDegrees, -maximumLookSway, maximumLookSway),
             Mathf.Clamp(mouseDelta.y * lookSwayDegrees, -maximumLookSway, maximumLookSway));
-        currentSway = Vector2.Lerp(
-            currentSway,
-            swayTarget,
-            1f - Mathf.Exp(-swayFollowSpeed * deltaTime));
+        currentSway = focused
+            ? Vector2.zero
+            : Vector2.Lerp(
+                currentSway,
+                swayTarget,
+                1f - Mathf.Exp(-swayFollowSpeed * deltaTime));
 
         targetEuler += new Vector3(
             currentSway.y,

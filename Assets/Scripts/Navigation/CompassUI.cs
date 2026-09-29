@@ -93,7 +93,7 @@ public class CompassNeedle : MonoBehaviour
         //----------------------------------------
 
         float targetAngle =
-            heading +
+            -heading +
             northOffset +
             sway +
             bobble;

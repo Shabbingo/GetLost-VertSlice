@@ -595,6 +595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GetLost.Missions.WagonPathMissionDetectionSource
   detectionPadding: 0.25
+  ignoreVerticalSeparation: 1
 --- !u!114 &3940231937229165112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -614,10 +615,15 @@ MonoBehaviour:
   topographyImage: {fileID: 5526275628998424208}
   pinRoot: {fileID: 8954673576432525506}
   topologyMapGenerator: {fileID: 0}
-  majorPinSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  minorPinSprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
-  majorPinSize: {x: 26, y: 26}
-  minorPinSize: {x: 16, y: 16}
+  pinPrefab: {fileID: 5426199328577769575, guid: 2e7483b210fabd147adc07e3a6666b5e, type: 3}
+  pinAttachmentPivotName: GameObject
+  pinHeadMaterial: {fileID: 2100000, guid: f328120fa48d7014cbbc717eb95e3b82, type: 2}
+  majorPinScale: 620
+  minorPinScale: 380
+  pinRotationOffset: {x: 0, y: 0, z: 0}
+  pinRandomTiltDegrees: 8
+  pinLocalOffset: {x: 0, y: 0, z: 0}
+  pinSortingOrder: 30
   availableMajorColour: {r: 1, g: 0.12091209, b: 0.07843137, a: 1}
   availableMinorColour: {r: 0.7280124, g: 0.1490196, b: 1, a: 1}
   completedColour: {r: 0, g: 1, b: 0.000000059604645, a: 0.9}
@@ -743,6 +749,17 @@ MonoBehaviour:
     Press [{1}] to return'
   promptText: {fileID: 0}
   promptColour: {r: 1, g: 0.88, b: 0.5, a: 1}
+  showSurveyNotebook: 1
+  fieldMapTool: {fileID: 0}
+  surveyNotebookPanel: {fileID: 0}
+  surveyNotebookText: {fileID: 0}
+  surveyNotebookSize: {x: 310, y: 500}
+  surveyNotebookScreenOffset: {x: 28, y: 0}
+  surveyNotebookRotation: -2
+  surveyNotebookPaperColour: {r: 0.91, g: 0.84, b: 0.65, a: 0.98}
+  surveyNotebookSpineColour: {r: 0.23, g: 0.14, b: 0.07, a: 1}
+  surveyNotebookInkColour: {r: 0.12, g: 0.1, b: 0.07, a: 0.95}
+  surveyNotebookFontSize: 21
 --- !u!114 &7671681168815466052
 MonoBehaviour:
   m_ObjectHideFlags: 0

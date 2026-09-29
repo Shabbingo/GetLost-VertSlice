@@ -7,6 +7,9 @@ namespace Thomas.TerrainFoliageSpawner
     [DisallowMultipleComponent]
     public sealed class TerrainFoliageRuntimeStreamer : MonoBehaviour
     {
+        private static readonly HashSet<TerrainFoliageRuntimeStreamer> ActiveStreamers =
+            new HashSet<TerrainFoliageRuntimeStreamer>();
+
         [Header("Data")]
         [SerializeField] private TerrainFoliagePlacementData placementData;
         [SerializeField] private Transform target;
@@ -117,11 +120,60 @@ namespace Thomas.TerrainFoliageSpawner
 
         private void OnEnable()
         {
+            ActiveStreamers.Add(this);
             nextRefresh = 0f;
             nextRendererRefresh = 0f;
         }
 
-        private void OnDisable() => DespawnAll();
+        private void OnDisable()
+        {
+            ActiveStreamers.Remove(this);
+            DespawnAll();
+        }
+
+        public static void GetActiveStreamers(List<TerrainFoliageRuntimeStreamer> results)
+        {
+            if (results == null)
+                return;
+            results.Clear();
+            foreach (TerrainFoliageRuntimeStreamer streamer in ActiveStreamers)
+                if (streamer != null && streamer.isActiveAndEnabled)
+                    results.Add(streamer);
+        }
+
+        /// <summary>
+        /// Adds nearby, currently streamed prefab counts without allocating or scanning
+        /// the complete placement database. Unmapped rocks are filtered by the caller.
+        /// </summary>
+        public void AccumulateActiveFoliageCounts(
+            Vector3 worldPosition,
+            float radius,
+            Dictionary<GameObject, int> results)
+        {
+            if (results == null || placementData == null || radius < 0f)
+                return;
+            IReadOnlyList<TerrainFoliagePlacementData.Placement> placements =
+                placementData.Placements;
+            IReadOnlyList<GameObject> prefabs = placementData.Prefabs;
+            float radiusSquared = radius * radius;
+            foreach (KeyValuePair<int, RuntimeInstance> pair in active)
+            {
+                int placementIndex = pair.Key;
+                if (placementIndex < 0 || placementIndex >= placements.Count)
+                    continue;
+                TerrainFoliagePlacementData.Placement placement = placements[placementIndex];
+                if (placement.prefabIndex < 0 || placement.prefabIndex >= prefabs.Count)
+                    continue;
+                Vector3 delta = placement.position - worldPosition;
+                if (delta.x * delta.x + delta.z * delta.z > radiusSquared)
+                    continue;
+                GameObject prefab = prefabs[placement.prefabIndex];
+                if (prefab == null)
+                    continue;
+                results.TryGetValue(prefab, out int count);
+                results[prefab] = count + 1;
+            }
+        }
 
         private void Update()
         {
