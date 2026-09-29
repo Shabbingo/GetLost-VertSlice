@@ -12,4 +12,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c46dd454719449dab6feeaddb268350, type: 3}
   m_Name: Terrain Detail Vegetation Mapping
   m_EditorClassIdentifier: Tom.WalkingController::Tom.WalkingController.TerrainDetailVegetationMapping
-  entries: []
+  entries:
+  - detailPrototypeAsset: {fileID: 100000, guid: c450888b0c88087478925d89a7d9b4c2, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 0a88aa0ee24b5514aa91d9362fe788ad, type: 2}
+  - detailPrototypeAsset: {fileID: 100000, guid: 8645caada858fb442aa50d027f0f5f09, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 0a88aa0ee24b5514aa91d9362fe788ad, type: 2}
+  - detailPrototypeAsset: {fileID: 8133863758475185808, guid: 729c8451e3c825949b0d011ee4ea2178, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 3940390950833316270, guid: c42644153f31106438cbaf1987490648, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 1644266791200225216, guid: 476fcf682d4d99f40ab851583da8363f, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 3132767399766440663, guid: 4abf953aeda61364ca0f2e2b0bedbfb0, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 2081513383002537291, guid: 261c730b29634f44c95d283a1d6573a4, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 1912096598324286579, guid: 359c6e72efde4118b0d2bfaf25907d3f, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 1912096598324286579, guid: 83e4005dd1f73f444881a4e3963339be, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 6786846490104400820, guid: 29c10f1cf516a244cab63d372086f2b9, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 577438640370909124, guid: 77f1330882c4f774db1cf4fc8db04ab6, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 6786846490104400820, guid: 7235390fac264587a6d15345241d1664, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 1912096598324286579, guid: 511e0027f22e4f03a63128c674ace012, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 6786846490104400820, guid: e9c1d83ba07f43e49d3638455a862108, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 3132767399766440663, guid: 320064afaf0a46a2b1306f38d50a1b4d, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 3132767399766440663, guid: a2c249614ccf4425b9aca343f2175fc5, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 275103711982799408, guid: b7d6cb924781ef34980ed271c748a6b4, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 1318794962490523914, guid: f90f1ad2b4dea0d44a7c055c9de410d4, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 1827696117095826664, guid: 89d3f1dbf360d9a4b877f287a8ed955f, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}
+  - detailPrototypeAsset: {fileID: 3191987575246897120, guid: 2c1c9abed9c6f2f4db5f264f758990f8, type: 3}
+    vegetationProfile: {fileID: 11400000, guid: 847d3a92eac78cb4189a2049fc038c56, type: 2}

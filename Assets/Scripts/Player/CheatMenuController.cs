@@ -481,7 +481,7 @@ namespace GetLost.Cheats
                          .OrderBy(item => item.Kind).ThenBy(item => item.DisplayName))
             {
                 MissionPointOfInterest captured = poi;
-                string prefix = poi.Kind == MissionPoiKind.Major ? "◆" : "•";
+                string prefix = poi.Kind == MissionPoiKind.Major ? "[MAJOR]" : "[MINOR]";
                 Button button = CreateButton(cheatListRoot, $"{prefix}  {poi.DisplayName}",
                     () => TeleportTo(captured), 54f);
                 poiButtons.Add(button.gameObject);

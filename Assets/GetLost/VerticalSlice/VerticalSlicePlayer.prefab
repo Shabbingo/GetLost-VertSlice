@@ -1069,18 +1069,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1961650575213958624}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aef3935ce4375cd5aafbdcd3d6254a6c, type: 3}
+  m_Script: {fileID: 11500000, guid: d55716bb24ac4e71a31cd73360815480, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Tom.WalkingController::Tom.WalkingController.TerrainDetailVegetationDetector
-  profile: {fileID: 11400000, guid: fefb0eb0379cfc8408ed38aff7365442, type: 2}
+  m_EditorClassIdentifier: Tom.WalkingController::Tom.WalkingController.TerrainDetailVegetationProvider
+  mapping: {fileID: 11400000, guid: 9669839c376166545aeadbc7bbc71e52, type: 2}
   terrainOverride: {fileID: 0}
-  footstepAudio: {fileID: 6961639097824930373}
+  receiver: {fileID: 2211558914487332405}
   sampleRadius: 0.75
-  sampleInterval: 0.15
+  sampleInterval: 0.2
+  minimumMoveDistance: 0.35
+  maximumSampleAge: 1
   densityForFullEffect: 8
-  minimumSpeedMultiplier: 0.55
-  enterSmoothing: 8
-  exitSmoothing: 5
 --- !u!114 &5278231820568987373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1607,8 +1606,10 @@ MonoBehaviour:
   hiddenLocalEuler: {x: 28, y: 0, z: 0}
   heldLocalPosition: {x: 0, y: -0.38, z: 0.82}
   heldLocalEuler: {x: 10, y: 0, z: 0}
-  focusedLocalPosition: {x: 0, y: -0.055, z: 0.56}
-  focusedLocalEuler: {x: 2, y: 0, z: 0}
+  focusedLocalPosition: {x: 0, y: 0, z: 0.56}
+  focusedLocalEuler: {x: 0, y: 0, z: 0}
+  alignFocusedMapToCamera: 1
+  useLookDownRevealWhileFocused: 0
   heldScale: 0.0012
   focusedScale: 0.00105
   positionSmoothTime: 0.12
@@ -1620,7 +1621,7 @@ MonoBehaviour:
   bobRollDegrees: 1.2
   bobFrequency: 7.5
   fullBobAtSpeed: 3.5
-  focusedBobMultiplier: 0.2
+  focusedBobMultiplier: 0
   lookSwayDegrees: 0.035
   maximumLookSway: 3
   swayFollowSpeed: 12
@@ -2905,8 +2906,38 @@ MonoBehaviour:
   startMarker: {fileID: 321074584632909418}
   endMarker: {fileID: 1922888575013083355}
   heldPresentation: {fileID: 8448125975445162682}
+  showMissionInformationOnHandheldMap: 1
+  showActiveMissionMarkers: 0
   missionFieldNoteText: {fileID: 7696336781913579460}
   fieldNoteRefreshSeconds: 0.75
+  fieldNotePanel: {fileID: 0}
+  fieldNoteOnLeft: 1
+  fieldNotePanelSize: {x: 230, y: 420}
+  fieldNoteOffset: {x: 12, y: 18}
+  fieldNoteRotationDegrees: 4
+  fieldNotePaperColour: {r: 0.91, g: 0.84, b: 0.65, a: 1}
+  fieldNoteSpineColour: {r: 0.23, g: 0.14, b: 0.07, a: 1}
+  fieldNoteInkColour: {r: 0.12, g: 0.1, b: 0.07, a: 0.95}
+  fieldNoteFontSize: 17
+  missionBoard: {fileID: 0}
+  showVisitedPois: 1
+  showCoordinateGrid: 1
+  gridColumns: 8
+  gridRows: 8
+  gridLineThickness: 1.5
+  gridColour: {r: 0.12, g: 0.1, b: 0.07, a: 0.28}
+  visitedPoiPinPrefab: {fileID: 5426199328577769575, guid: 2e7483b210fabd147adc07e3a6666b5e, type: 3}
+  visitedPinAttachmentPivotName: GameObject
+  visitedPinHeadMaterial: {fileID: 2100000, guid: f328120fa48d7014cbbc717eb95e3b82, type: 2}
+  fieldMapPinScale: 0.2
+  visitedMajorPinScale: 470
+  visitedMinorPinScale: 280
+  visitedPinRotationOffset: {x: 0, y: 0, z: 0}
+  visitedPinRandomTiltDegrees: 8
+  visitedPinLocalOffset: {x: 0, y: 0, z: 0}
+  visitedPinSortingOrder: 35
+  visitedMajorColour: {r: 0.55, g: 0.19, b: 0.08, a: 0.95}
+  visitedMinorColour: {r: 0.08, g: 0.34, b: 0.52, a: 0.95}
   topologyMapGenerator: {fileID: 7064377647122492662}
   generateMapOnAwake: 1
   refreshMapWhenOpened: 1

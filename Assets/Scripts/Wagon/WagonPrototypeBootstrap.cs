@@ -151,6 +151,8 @@ namespace GetLost.Wagon
                 Vector3.Distance(player.position, lastPlayerPosition) > 20f)
             {
                 Vector3 forward = Vector3.ProjectOnPlane(player.forward, Vector3.up).normalized;
+                if (forward.sqrMagnitude < 0.1f)
+                    forward = Vector3.forward;
                 WagonController settings = world.Wagon;
                 if (TryFindSpawn(player.position, forward, settings,
                         out Vector3 position, out Quaternion rotation))

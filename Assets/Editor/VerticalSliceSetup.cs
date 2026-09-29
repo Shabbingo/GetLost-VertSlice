@@ -87,7 +87,7 @@ namespace GetLost.VerticalSlice.Editor
                 AudioSource audioSource = root.AddComponent<AudioSource>();
                 FootstepAudioManager footstepAudio = root.AddComponent<FootstepAudioManager>();
                 ManagedGrassVegetationProvider managedGrass = root.AddComponent<ManagedGrassVegetationProvider>();
-                TerrainDetailVegetationDetector terrainDetails = root.AddComponent<TerrainDetailVegetationDetector>();
+                TerrainDetailVegetationProvider terrainDetails = root.AddComponent<TerrainDetailVegetationProvider>();
 
                 GameObject pitchObject = new("Camera Pitch Pivot");
                 pitchObject.transform.SetParent(root.transform, false);
@@ -114,8 +114,8 @@ namespace GetLost.VerticalSlice.Editor
                 SetObject(surfaceResolver, "terrainLayerMap", AssetDatabase.LoadAssetAtPath<TerrainLayerSurfaceMap>("Assets/TerrainSurfaces/Terrain Layer Surface Map.asset"));
                 SetObject(managedGrass, "receiver", vegetation);
                 SetObject(managedGrass, "mapping", AssetDatabase.LoadAssetAtPath<TerrainDetailVegetationMapping>("Assets/TerrainSurfaces/Terrain Detail Vegetation Mapping.asset"));
-                SetObject(terrainDetails, "profile", AssetDatabase.LoadAssetAtPath<TerrainDetailVegetationProfile>("Assets/TerrainSurfaces/Legacy/Terrain Detail Vegetation Profile.asset"));
-                SetObject(terrainDetails, "footstepAudio", footstepAudio);
+                SetObject(terrainDetails, "mapping", AssetDatabase.LoadAssetAtPath<TerrainDetailVegetationMapping>("Assets/TerrainSurfaces/Terrain Detail Vegetation Mapping.asset"));
+                SetObject(terrainDetails, "receiver", vegetation);
                 SetObject(look, "input", input);
                 SetObject(look, "yawTarget", root.transform);
                 SetObject(look, "pitchTarget", pitchObject.transform);

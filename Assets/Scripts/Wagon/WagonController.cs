@@ -257,16 +257,45 @@ namespace GetLost.Wagon
         public void PlaceBody(Vector3 position, Quaternion rotation)
         {
             holder?.Release();
-            Quaternion change = rotation * Quaternion.Inverse(Body.rotation);
+            Quaternion bodyRotation = NormalizeSafe(Body.rotation, Quaternion.identity);
+            rotation = NormalizeSafe(rotation, bodyRotation);
+            Quaternion change = NormalizeSafe(
+                rotation * Quaternion.Inverse(bodyRotation),
+                Quaternion.identity);
             Vector3 oldPosition = Body.position;
             foreach (Rigidbody part in Bodies)
             {
+                if (!part)
+                    continue;
                 part.position = position + change * (part.position - oldPosition);
-                part.rotation = change * part.rotation;
+                Quaternion partRotation = NormalizeSafe(part.rotation, bodyRotation);
+                part.rotation = NormalizeSafe(change * partRotation, rotation);
                 part.linearVelocity = Vector3.zero;
                 part.angularVelocity = Vector3.zero;
             }
             Physics.SyncTransforms();
+        }
+
+        private static Quaternion NormalizeSafe(Quaternion value, Quaternion fallback)
+        {
+            float sqrMagnitude = value.x * value.x + value.y * value.y +
+                                 value.z * value.z + value.w * value.w;
+            if (float.IsNaN(sqrMagnitude) || float.IsInfinity(sqrMagnitude) ||
+                sqrMagnitude < 0.000001f)
+            {
+                value = fallback;
+                sqrMagnitude = value.x * value.x + value.y * value.y +
+                               value.z * value.z + value.w * value.w;
+            }
+            if (float.IsNaN(sqrMagnitude) || float.IsInfinity(sqrMagnitude) ||
+                sqrMagnitude < 0.000001f)
+                return Quaternion.identity;
+            float inverseMagnitude = 1f / Mathf.Sqrt(sqrMagnitude);
+            return new Quaternion(
+                value.x * inverseMagnitude,
+                value.y * inverseMagnitude,
+                value.z * inverseMagnitude,
+                value.w * inverseMagnitude);
         }
 
         private void OnDestroy()

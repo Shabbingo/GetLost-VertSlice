@@ -26,6 +26,7 @@ namespace Tom.WalkingController
         [SerializeField, Min(1f)] private float instancesForFullEffect = 8f;
 
         private readonly List<TerrainFoliageGrassRenderer> renderers = new();
+        private readonly List<TerrainFoliageRuntimeStreamer> streamers = new();
         private readonly Dictionary<GameObject, int> prefabCounts = new();
         private readonly Dictionary<VegetationProfile, int> profileCounts = new();
         private readonly Dictionary<VegetationProfile, object> sourceKeys = new();
@@ -92,6 +93,14 @@ namespace Tom.WalkingController
                         sampleRadius,
                         prefabCounts);
                 }
+            }
+
+            TerrainFoliageRuntimeStreamer.GetActiveStreamers(streamers);
+            for (int i = 0; i < streamers.Count; i++)
+            {
+                TerrainFoliageRuntimeStreamer streamer = streamers[i];
+                if (streamer != null)
+                    streamer.AccumulateActiveFoliageCounts(position, sampleRadius, prefabCounts);
             }
 
             foreach (KeyValuePair<GameObject, int> pair in prefabCounts)

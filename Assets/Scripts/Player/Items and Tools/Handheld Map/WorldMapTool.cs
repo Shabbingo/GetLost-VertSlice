@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
+using GetLost.Missions;
 using GetLost.PlayerTools;
 
 /// <summary>
@@ -33,13 +36,66 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
     [SerializeField] private HeldMapPresentation heldPresentation;
 
     [Header("Mission Field Note")]
-    [Tooltip("Mission presentation belongs on the physical Mission Board. Leave disabled for the handheld navigation map.")]
+    [Tooltip("Show discovered field-map information supplied by the Mission Board.")]
     [SerializeField] private bool showMissionInformationOnHandheldMap;
+
+    [Tooltip("Show the old active START/END objective markers. Leave disabled for a visited-POIs-only field map.")]
+    [SerializeField] private bool showActiveMissionMarkers;
 
     [Tooltip("Optional map text. If empty, a quiet field note is created on the physical map at runtime.")]
     [SerializeField] private TMP_Text missionFieldNoteText;
 
     [SerializeField, Min(0.1f)] private float fieldNoteRefreshSeconds = 0.75f;
+
+    [Header("Field Note Handbook Layout")]
+    [Tooltip("Optional custom handbook panel. When empty, a paper notebook is created around the field-note text at runtime.")]
+    [SerializeField] private RectTransform fieldNotePanel;
+    [Tooltip("Places the handbook beside the left or right edge of the map so it never covers the coordinate grid.")]
+    [SerializeField] private bool fieldNoteOnLeft = true;
+    [SerializeField] private Vector2 fieldNotePanelSize = new(230f, 420f);
+    [Tooltip("Horizontal gap between the handbook and the map edge, plus a vertical adjustment.")]
+    [SerializeField] private Vector2 fieldNoteOffset = new(12f, 18f);
+    [Tooltip("Small page rotation that makes the handbook look loosely attached to the map.")]
+    [SerializeField, Range(-15f, 15f)] private float fieldNoteRotationDegrees = 4f;
+    [SerializeField] private Color fieldNotePaperColour = new(0.91f, 0.84f, 0.65f, 1f);
+    [SerializeField] private Color fieldNoteSpineColour = new(0.23f, 0.14f, 0.07f, 1f);
+    [SerializeField] private Color fieldNoteInkColour = new(0.12f, 0.1f, 0.07f, 0.95f);
+    [SerializeField, Min(8f)] private float fieldNoteFontSize = 17f;
+
+    [Header("Field Map Progress")]
+    [Tooltip("Mission board that owns POI discovery and completion state. Found automatically when empty.")]
+    [SerializeField] private MissionBoardController missionBoard;
+
+    [Tooltip("Draw completed POIs on the handheld field map.")]
+    [SerializeField] private bool showVisitedPois = true;
+
+    [Tooltip("Draw a chess-style letter and number coordinate grid over the field map.")]
+    [SerializeField] private bool showCoordinateGrid = true;
+
+    [SerializeField, Range(2, 26)] private int gridColumns = 8;
+    [SerializeField, Range(2, 20)] private int gridRows = 8;
+    [SerializeField, Min(0.5f)] private float gridLineThickness = 1.5f;
+    [SerializeField] private Color gridColour = new(0.12f, 0.1f, 0.07f, 0.28f);
+
+    [Header("3D Visited POI Pins")]
+    [SerializeField] private GameObject visitedPoiPinPrefab;
+    [Tooltip("Child transform at the needle insertion point. This point is aligned to the POI coordinate.")]
+    [SerializeField] private string visitedPinAttachmentPivotName = "GameObject";
+    [Tooltip("Material identifying the renderer slot whose Base Color is controlled by the visited POI colour fields.")]
+    [SerializeField] private Material visitedPinHeadMaterial;
+    [Tooltip("Handheld-map-only master scale. This does not affect pins on the physical Mission Board.")]
+    [SerializeField, Min(0.001f)] private float fieldMapPinScale = 0.2f;
+    [Tooltip("Uniform scale multiplier for visited Major POI pins.")]
+    [SerializeField] private float visitedMajorPinScale = 470f;
+    [Tooltip("Uniform scale multiplier for visited Minor POI pins.")]
+    [SerializeField] private float visitedMinorPinScale = 280f;
+    [SerializeField] private Vector3 visitedPinRotationOffset;
+    [Tooltip("Maximum deterministic lean applied to field-map pins so they look hand-placed.")]
+    [SerializeField, Range(0f, 20f)] private float visitedPinRandomTiltDegrees = 8f;
+    [SerializeField] private Vector3 visitedPinLocalOffset;
+    [SerializeField] private int visitedPinSortingOrder = 35;
+    [SerializeField] private Color visitedMajorColour = new(0.55f, 0.19f, 0.08f, 0.95f);
+    [SerializeField] private Color visitedMinorColour = new(0.08f, 0.34f, 0.52f, 0.95f);
 
     [Header("Generated Topology Map")]
     [Tooltip("Assign the active TopologyMapGenerator used by your normal map system.")]
@@ -134,6 +190,13 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
     private Vector3 storedEndWorldPosition;
     private bool hasEndWorldPosition;
     private float nextFieldNoteRefreshTime;
+    private RectTransform coordinateGridRoot;
+    private RectTransform visitedPoiRoot;
+    private int builtGridColumns = -1;
+    private int builtGridRows = -1;
+    private MissionBoardController subscribedMissionBoard;
+    private readonly Dictionary<MissionPointOfInterest, RectTransform> visitedPoiMarkers = new();
+    private readonly List<MissionPointOfInterest> explicitlyRecordedFieldNotePois = new();
 
     public PlayerToolType ToolType => PlayerToolType.Map;
     public bool IsEquipped => isOpen;
@@ -164,6 +227,7 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
         if (autoDetectTerrainBounds)
             DetectTerrainBounds();
 
+        ResolveMissionBoard();
         EnsureMissionMarkerHierarchy();
         ApplyMissionInformationVisibility();
 
@@ -175,6 +239,9 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
 
     private void OnEnable()
     {
+        ResolveMissionBoard();
+        SubscribeToMissionBoard();
+
         if (allowLegacyToggleInput)
             EnableAction(toggleMapAction);
 
@@ -199,6 +266,8 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
 
     private void OnDisable()
     {
+        UnsubscribeFromMissionBoard();
+
         if (toggleMapAction != null && toggleMapAction.action != null)
             toggleMapAction.action.performed -= OnToggleMap;
 
@@ -358,6 +427,7 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
         forceRegenerateBaseMap = false;
 
         UpdateMissionMarkers();
+        RefreshFieldMapProgress();
 
         Debug.Log("[WorldMapTool] Clean topology map assigned.", this);
     }
@@ -386,7 +456,7 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
 
     private void UpdateMissionMarkers()
     {
-        if (!showMissionInformationOnHandheldMap)
+        if (!showMissionInformationOnHandheldMap || !showActiveMissionMarkers)
         {
             if (startMarker) startMarker.gameObject.SetActive(false);
             if (endMarker) endMarker.gameObject.SetActive(false);
@@ -434,65 +504,42 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
         if (marker == null || mapImage == null)
             return;
 
-        // Preferred method: use exactly the same map conversion as the topo generator.
-        if (topologyMapGenerator != null &&
-            topologyMapGenerator.WorldToPixel(
-                worldPosition,
-                out Vector2 pixelPosition))
-        {
-            float textureWidth =
-                Mathf.Max(1f, topologyMapGenerator.textureWidth - 1f);
-
-            float textureHeight =
-                Mathf.Max(1f, topologyMapGenerator.textureHeight - 1f);
-
-            float u = pixelPosition.x / textureWidth;
-            float v = pixelPosition.y / textureHeight;
-
-            if (clampStartMarkerToMap)
-            {
-                u = Mathf.Clamp01(u);
-                v = Mathf.Clamp01(v);
-            }
-
-            // START and END markers should both be children of the RawImage.
-            marker.anchorMin = new Vector2(u, v);
-            marker.anchorMax = new Vector2(u, v);
-            marker.anchoredPosition = Vector2.zero;
-            marker.gameObject.SetActive(true);
-
-            return;
-        }
-
-        // Fallback: terrain bounds.
-        float width = worldMaxXZ.x - worldMinXZ.x;
-        float height = worldMaxXZ.y - worldMinXZ.y;
-
-        if (Mathf.Abs(width) < 0.001f || Mathf.Abs(height) < 0.001f)
+        if (!TryWorldToMapUv(worldPosition, out Vector2 uv))
             return;
 
-        float uFallback =
-            Mathf.InverseLerp(
-                worldMinXZ.x,
-                worldMaxXZ.x,
-                worldPosition.x);
-
-        float vFallback =
-            Mathf.InverseLerp(
-                worldMinXZ.y,
-                worldMaxXZ.y,
-                worldPosition.z);
-
-        if (clampStartMarkerToMap)
-        {
-            uFallback = Mathf.Clamp01(uFallback);
-            vFallback = Mathf.Clamp01(vFallback);
-        }
-
-        marker.anchorMin = new Vector2(uFallback, vFallback);
-        marker.anchorMax = new Vector2(uFallback, vFallback);
+        marker.anchorMin = uv;
+        marker.anchorMax = uv;
         marker.anchoredPosition = Vector2.zero;
         marker.gameObject.SetActive(true);
+    }
+
+    private bool TryWorldToMapUv(Vector3 worldPosition, out Vector2 uv)
+    {
+        if (topologyMapGenerator != null &&
+            topologyMapGenerator.WorldToPixel(worldPosition, out Vector2 pixelPosition))
+        {
+            uv = new Vector2(
+                pixelPosition.x / Mathf.Max(1f, topologyMapGenerator.textureWidth - 1f),
+                pixelPosition.y / Mathf.Max(1f, topologyMapGenerator.textureHeight - 1f));
+            if (clampStartMarkerToMap)
+                uv = new Vector2(Mathf.Clamp01(uv.x), Mathf.Clamp01(uv.y));
+            return true;
+        }
+
+        float width = worldMaxXZ.x - worldMinXZ.x;
+        float height = worldMaxXZ.y - worldMinXZ.y;
+        if (Mathf.Abs(width) < 0.001f || Mathf.Abs(height) < 0.001f)
+        {
+            uv = Vector2.zero;
+            return false;
+        }
+
+        uv = new Vector2(
+            Mathf.InverseLerp(worldMinXZ.x, worldMaxXZ.x, worldPosition.x),
+            Mathf.InverseLerp(worldMinXZ.y, worldMaxXZ.y, worldPosition.z));
+        if (clampStartMarkerToMap)
+            uv = new Vector2(Mathf.Clamp01(uv.x), Mathf.Clamp01(uv.y));
+        return true;
     }
 
     [ContextMenu("Auto Detect Terrain Bounds")]
@@ -568,6 +615,7 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
 
             scanTarget = Vector2.zero;
             scanCurrent = Vector2.zero;
+            RefreshFieldMapProgress();
             RefreshMissionFieldNote();
             nextFieldNoteRefreshTime =
                 Time.unscaledTime + fieldNoteRefreshSeconds;
@@ -587,8 +635,7 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
     {
         if (!showMissionInformationOnHandheldMap)
         {
-            if (missionFieldNoteText)
-                missionFieldNoteText.gameObject.SetActive(false);
+            SetFieldNoteVisible(false);
             return;
         }
 
@@ -602,18 +649,42 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
             return;
         }
 
-        // Keep this tool portable. Mission systems may assign this text or call
-        // the marker methods, but the vertical slice does not require them.
-        if (string.IsNullOrWhiteSpace(missionFieldNoteText.text))
-            missionFieldNoteText.text = "FIELD NOTE\nNo active survey.";
-        missionFieldNoteText.gameObject.SetActive(true);
+        ResolveMissionBoard();
+        PrepareFieldNoteLayout();
+
+        IEnumerable<MissionPointOfInterest> missionRecordedPois = missionBoard
+            ? missionBoard.PointsOfInterest.Where(poi =>
+                poi &&
+                (poi.State == MissionPoiState.Completed ||
+                 (poi.Kind == MissionPoiKind.Minor && poi.State != MissionPoiState.Locked)))
+            : Enumerable.Empty<MissionPointOfInterest>();
+
+        List<MissionPointOfInterest> recordedPois = explicitlyRecordedFieldNotePois
+            .Where(poi => poi)
+            .Concat(missionRecordedPois)
+            .Distinct()
+            .ToList();
+        if (recordedPois.Count == 0)
+        {
+            missionFieldNoteText.text =
+                "FIELD NOTES\nSURVEYED LOCATIONS\nNo locations recorded.";
+        }
+        else
+        {
+            missionFieldNoteText.text =
+                "FIELD NOTES\nSURVEYED LOCATIONS\n" +
+                string.Join("\n", recordedPois.Select(poi =>
+                    $"{(poi.Kind == MissionPoiKind.Major ? "MAJOR" : "MINOR")}: " +
+                    $"{poi.DisplayName} - {GetGridReference(poi.PinWorldPosition)}"));
+        }
+        SetFieldNoteVisible(true);
+        missionFieldNoteText.ForceMeshUpdate();
     }
 
     private void ApplyMissionInformationVisibility()
     {
-        if (missionFieldNoteText)
-            missionFieldNoteText.gameObject.SetActive(showMissionInformationOnHandheldMap);
-        if (!showMissionInformationOnHandheldMap)
+        SetFieldNoteVisible(showMissionInformationOnHandheldMap);
+        if (!showMissionInformationOnHandheldMap || !showActiveMissionMarkers)
         {
             if (startMarker) startMarker.gameObject.SetActive(false);
             if (endMarker) endMarker.gameObject.SetActive(false);
@@ -630,7 +701,7 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
         GameObject noteObject = new GameObject(
             "Mission Field Note",
             typeof(RectTransform));
-        noteObject.transform.SetParent(mapImage.transform, false);
+        noteObject.transform.SetParent(mapImage.transform.parent, false);
 
         RectTransform rect =
             noteObject.GetComponent<RectTransform>();
@@ -644,12 +715,394 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
             noteObject.AddComponent<TextMeshProUGUI>();
         text.font = TMP_Settings.defaultFontAsset;
         text.fontSize = 22f;
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TextWrappingModes.Normal;
         text.alignment = TextAlignmentOptions.TopLeft;
         text.color = new Color(0.12f, 0.1f, 0.07f, 0.92f);
         text.raycastTarget = false;
 
         missionFieldNoteText = text;
+        PrepareFieldNoteLayout();
+    }
+
+    private void PrepareFieldNoteLayout()
+    {
+        if (!missionFieldNoteText)
+            return;
+
+        EnsureFieldNotePanel();
+        if (!fieldNotePanel)
+            return;
+
+        RectTransform mapRect = mapImage.rectTransform;
+        Transform desiredParent = mapRect.parent;
+        if (fieldNotePanel.parent != desiredParent)
+            fieldNotePanel.SetParent(desiredParent, false);
+
+        float side = fieldNoteOnLeft ? -1f : 1f;
+        fieldNotePanel.anchorMin = fieldNotePanel.anchorMax =
+            new Vector2(fieldNoteOnLeft ? mapRect.anchorMin.x : mapRect.anchorMax.x, 0.5f);
+        fieldNotePanel.pivot = new Vector2(fieldNoteOnLeft ? 1f : 0f, 0.5f);
+        fieldNotePanel.sizeDelta = fieldNotePanelSize;
+        fieldNotePanel.anchoredPosition = new Vector2(
+            side * Mathf.Abs(fieldNoteOffset.x),
+            fieldNoteOffset.y);
+        fieldNotePanel.localRotation = Quaternion.Euler(
+            0f,
+            0f,
+            (fieldNoteOnLeft ? 1f : -1f) * fieldNoteRotationDegrees);
+        fieldNotePanel.localScale = Vector3.one;
+        fieldNotePanel.SetAsLastSibling();
+
+        RectTransform rect = missionFieldNoteText.rectTransform;
+        if (rect.parent != fieldNotePanel)
+            rect.SetParent(fieldNotePanel, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.offsetMin = new Vector2(28f, 22f);
+        rect.offsetMax = new Vector2(-15f, -22f);
+        rect.localRotation = Quaternion.identity;
+        rect.localScale = Vector3.one;
+        rect.SetAsLastSibling();
+        missionFieldNoteText.fontSize = fieldNoteFontSize;
+        missionFieldNoteText.enableAutoSizing = true;
+        missionFieldNoteText.fontSizeMin = Mathf.Max(8f, fieldNoteFontSize - 5f);
+        missionFieldNoteText.fontSizeMax = fieldNoteFontSize;
+        missionFieldNoteText.color = fieldNoteInkColour;
+        missionFieldNoteText.alignment = TextAlignmentOptions.TopLeft;
+        missionFieldNoteText.textWrappingMode = TextWrappingModes.Normal;
+        missionFieldNoteText.overflowMode = TextOverflowModes.Ellipsis;
+        missionFieldNoteText.raycastTarget = false;
+    }
+
+    private void EnsureFieldNotePanel()
+    {
+        if (fieldNotePanel || !missionFieldNoteText || !mapImage)
+            return;
+
+        GameObject panelObject = new(
+            "Field Note Handbook",
+            typeof(RectTransform),
+            typeof(Image),
+            typeof(Shadow));
+        fieldNotePanel = panelObject.GetComponent<RectTransform>();
+        fieldNotePanel.SetParent(mapImage.rectTransform.parent, false);
+
+        Image paper = panelObject.GetComponent<Image>();
+        paper.color = fieldNotePaperColour;
+        paper.raycastTarget = false;
+
+        Shadow shadow = panelObject.GetComponent<Shadow>();
+        shadow.effectColor = new Color(0.04f, 0.025f, 0.01f, 0.35f);
+        shadow.effectDistance = new Vector2(8f, -8f);
+        shadow.useGraphicAlpha = true;
+        CreateHandbookDecoration(
+            "Handbook Spine",
+            fieldNotePanel,
+            new Vector2(0f, 0f),
+            new Vector2(0f, 1f),
+            Vector2.zero,
+            new Vector2(18f, 0f),
+            fieldNoteSpineColour);
+
+        for (int binding = 0; binding < 4; binding++)
+        {
+            float y = 0.18f + binding * 0.21f;
+            CreateHandbookDecoration(
+                $"Binding {binding + 1}",
+                fieldNotePanel,
+                new Vector2(0f, y),
+                new Vector2(0f, y),
+                new Vector2(-8f, 0f),
+                new Vector2(28f, 5f),
+                new Color(0.09f, 0.065f, 0.035f, 1f));
+        }
+
+        // The original prefab text was authored directly beneath the map page.
+        // Reusing its renderer after moving it outside that page can leave TMP
+        // with stale world-canvas material/culling state. Build a clean text
+        // layer under the notebook, just like the working coordinate labels.
+        TMP_Text oldText = missionFieldNoteText;
+        GameObject textObject = new(
+            "Field Note Entries",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+        textObject.transform.SetParent(fieldNotePanel, false);
+        TextMeshProUGUI freshText = textObject.GetComponent<TextMeshProUGUI>();
+        freshText.font = oldText && oldText.font
+            ? oldText.font
+            : TMP_Settings.defaultFontAsset;
+        freshText.raycastTarget = false;
+        freshText.maskable = false;
+        freshText.extraPadding = true;
+        if (oldText)
+            oldText.gameObject.SetActive(false);
+        missionFieldNoteText = freshText;
+    }
+
+    private static void CreateHandbookDecoration(
+        string objectName,
+        RectTransform parent,
+        Vector2 anchorMin,
+        Vector2 anchorMax,
+        Vector2 anchoredPosition,
+        Vector2 sizeDelta,
+        Color colour)
+    {
+        GameObject decoration = new(objectName, typeof(RectTransform), typeof(Image));
+        RectTransform rect = decoration.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        rect.anchorMin = anchorMin;
+        rect.anchorMax = anchorMax;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = anchoredPosition;
+        rect.sizeDelta = sizeDelta;
+        Image image = decoration.GetComponent<Image>();
+        image.color = colour;
+        image.raycastTarget = false;
+    }
+
+    private void SetFieldNoteVisible(bool visible)
+    {
+        if (fieldNotePanel)
+            fieldNotePanel.gameObject.SetActive(visible);
+
+        if (missionFieldNoteText)
+        {
+            missionFieldNoteText.gameObject.SetActive(visible);
+            missionFieldNoteText.enabled = visible;
+        }
+    }
+
+    private void ResolveMissionBoard()
+    {
+        if (!missionBoard)
+            missionBoard = FindAnyObjectByType<MissionBoardController>();
+        SubscribeToMissionBoard();
+    }
+
+    private void SubscribeToMissionBoard()
+    {
+        if (subscribedMissionBoard == missionBoard)
+            return;
+        UnsubscribeFromMissionBoard();
+        subscribedMissionBoard = missionBoard;
+        if (subscribedMissionBoard)
+            subscribedMissionBoard.MissionProgressChanged += OnMissionProgressChanged;
+    }
+
+    private void UnsubscribeFromMissionBoard()
+    {
+        if (subscribedMissionBoard)
+            subscribedMissionBoard.MissionProgressChanged -= OnMissionProgressChanged;
+        subscribedMissionBoard = null;
+    }
+
+    private void OnMissionProgressChanged()
+    {
+        RefreshFieldMapProgress();
+        RefreshMissionFieldNote();
+    }
+
+    private void RefreshFieldMapProgress()
+    {
+        if (!showMissionInformationOnHandheldMap || mapImage == null)
+        {
+            if (coordinateGridRoot) coordinateGridRoot.gameObject.SetActive(false);
+            if (visitedPoiRoot) visitedPoiRoot.gameObject.SetActive(false);
+            return;
+        }
+
+        ResolveMissionBoard();
+        EnsureCoordinateGrid();
+        RefreshVisitedPoiMarkers();
+    }
+
+    private void EnsureCoordinateGrid()
+    {
+        if (!showCoordinateGrid)
+        {
+            if (coordinateGridRoot) coordinateGridRoot.gameObject.SetActive(false);
+            return;
+        }
+
+        if (!coordinateGridRoot)
+            coordinateGridRoot = CreateStretchRoot("Field Map Coordinate Grid");
+        if (!coordinateGridRoot)
+            return;
+
+        coordinateGridRoot.gameObject.SetActive(true);
+        if (builtGridColumns == gridColumns && builtGridRows == gridRows &&
+            coordinateGridRoot.childCount > 0)
+            return;
+
+        for (int i = coordinateGridRoot.childCount - 1; i >= 0; i--)
+            Destroy(coordinateGridRoot.GetChild(i).gameObject);
+
+        for (int column = 0; column <= gridColumns; column++)
+            CreateGridLine(true, column / (float)gridColumns);
+        for (int row = 0; row <= gridRows; row++)
+            CreateGridLine(false, row / (float)gridRows);
+
+        for (int column = 0; column < gridColumns; column++)
+            CreateGridLabel(ColumnName(column), new Vector2((column + 0.5f) / gridColumns, 0.985f));
+        for (int row = 0; row < gridRows; row++)
+            CreateGridLabel((row + 1).ToString(), new Vector2(0.02f, 1f - (row + 0.5f) / gridRows));
+
+        builtGridColumns = gridColumns;
+        builtGridRows = gridRows;
+        coordinateGridRoot.SetAsFirstSibling();
+    }
+
+    private RectTransform CreateStretchRoot(string objectName)
+    {
+        if (!mapImage)
+            return null;
+        GameObject root = new(objectName, typeof(RectTransform));
+        RectTransform rect = root.GetComponent<RectTransform>();
+        rect.SetParent(mapImage.rectTransform, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        return rect;
+    }
+
+    private void CreateGridLine(bool vertical, float position)
+    {
+        GameObject lineObject = new("Grid Line", typeof(RectTransform), typeof(Image));
+        RectTransform rect = lineObject.GetComponent<RectTransform>();
+        rect.SetParent(coordinateGridRoot, false);
+        if (vertical)
+        {
+            rect.anchorMin = new Vector2(position, 0f);
+            rect.anchorMax = new Vector2(position, 1f);
+            rect.sizeDelta = new Vector2(gridLineThickness, 0f);
+        }
+        else
+        {
+            rect.anchorMin = new Vector2(0f, position);
+            rect.anchorMax = new Vector2(1f, position);
+            rect.sizeDelta = new Vector2(0f, gridLineThickness);
+        }
+        rect.anchoredPosition = Vector2.zero;
+        Image image = lineObject.GetComponent<Image>();
+        image.color = gridColour;
+        image.raycastTarget = false;
+    }
+
+    private void CreateGridLabel(string label, Vector2 anchor)
+    {
+        GameObject labelObject = new($"Grid {label}", typeof(RectTransform), typeof(TextMeshProUGUI));
+        RectTransform rect = labelObject.GetComponent<RectTransform>();
+        rect.SetParent(coordinateGridRoot, false);
+        rect.anchorMin = anchor;
+        rect.anchorMax = anchor;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.sizeDelta = new Vector2(30f, 22f);
+        TMP_Text text = labelObject.GetComponent<TMP_Text>();
+        text.text = label;
+        text.fontSize = 12f;
+        text.fontStyle = FontStyles.Bold;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = new Color(gridColour.r, gridColour.g, gridColour.b, Mathf.Max(0.65f, gridColour.a));
+        text.raycastTarget = false;
+    }
+
+    private void RefreshVisitedPoiMarkers()
+    {
+        if (!showVisitedPois || !missionBoard)
+        {
+            if (visitedPoiRoot) visitedPoiRoot.gameObject.SetActive(false);
+            return;
+        }
+
+        if (!visitedPoiRoot)
+            visitedPoiRoot = CreateStretchRoot("Visited POI Markers");
+        if (!visitedPoiRoot)
+            return;
+        visitedPoiRoot.gameObject.SetActive(true);
+
+        foreach (MissionPointOfInterest poi in missionBoard.PointsOfInterest)
+        {
+            if (!poi)
+                continue;
+            RectTransform marker = GetOrCreateVisitedPoiMarker(poi);
+            bool visited = poi.State == MissionPoiState.Completed;
+            marker.gameObject.SetActive(visited);
+            if (!visited)
+                continue;
+
+            Color pinColour = poi.Kind == MissionPoiKind.Major
+                ? visitedMajorColour
+                : visitedMinorColour;
+            PositionMarker(marker, poi.PinWorldPosition);
+            MapPin3DVisual visual = marker.GetComponent<MapPin3DVisual>();
+            visual.Configure(
+                visitedPoiPinPrefab,
+                visitedPinAttachmentPivotName,
+                visitedPinHeadMaterial,
+                pinColour,
+                (poi.Kind == MissionPoiKind.Major ? visitedMajorPinScale : visitedMinorPinScale) *
+                fieldMapPinScale,
+                visitedPinRotationOffset,
+                poi.PoiId,
+                visitedPinRandomTiltDegrees,
+                visitedPinLocalOffset,
+                visitedPinSortingOrder);
+        }
+        visitedPoiRoot.SetAsLastSibling();
+    }
+
+    private RectTransform GetOrCreateVisitedPoiMarker(MissionPointOfInterest poi)
+    {
+        if (visitedPoiMarkers.TryGetValue(poi, out RectTransform marker) && marker)
+            return marker;
+        GameObject markerObject = new($"Visited {poi.DisplayName}", typeof(RectTransform), typeof(MapPin3DVisual));
+        marker = markerObject.GetComponent<RectTransform>();
+        marker.SetParent(visitedPoiRoot, false);
+        marker.anchorMin = marker.anchorMax = new Vector2(0.5f, 0.5f);
+        marker.pivot = new Vector2(0.5f, 0.5f);
+        visitedPoiMarkers[poi] = marker;
+        return marker;
+    }
+
+    private string GetGridReference(Vector3 worldPosition)
+    {
+        if (!TryWorldToMapUv(worldPosition, out Vector2 uv))
+            return "--";
+
+        int column = Mathf.Clamp(Mathf.FloorToInt(uv.x * gridColumns), 0, gridColumns - 1);
+        int rowFromTop = Mathf.Clamp(Mathf.FloorToInt((1f - uv.y) * gridRows), 0, gridRows - 1);
+        return $"{ColumnName(column)}{rowFromTop + 1}";
+    }
+
+    /// <summary>
+    /// Lets the bird's-eye survey and other presentation systems use exactly
+    /// the same chess-grid conversion as the physical field map.
+    /// </summary>
+    public string GetGridReferenceForWorldPosition(Vector3 worldPosition)
+    {
+        return GetGridReference(worldPosition);
+    }
+
+    /// <summary>
+    /// Adds a location discovered by the bird's-eye survey to the physical
+    /// field notebook immediately. Mission state is still used to reconstruct
+    /// the same list whenever the field map is reopened.
+    /// </summary>
+    public void RecordPoiInFieldNotes(MissionPointOfInterest poi)
+    {
+        if (!poi)
+            return;
+        if (!explicitlyRecordedFieldNotePois.Contains(poi))
+            explicitlyRecordedFieldNotePois.Add(poi);
+        RefreshMissionFieldNote();
+    }
+
+    private static string ColumnName(int zeroBasedColumn)
+    {
+        return ((char)('A' + Mathf.Clamp(zeroBasedColumn, 0, 25))).ToString();
     }
 
     private void EnterFocusMode()
