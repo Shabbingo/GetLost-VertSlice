@@ -618,9 +618,9 @@ MonoBehaviour:
   pinPrefab: {fileID: 5426199328577769575, guid: 2e7483b210fabd147adc07e3a6666b5e, type: 3}
   pinAttachmentPivotName: GameObject
   pinHeadMaterial: {fileID: 2100000, guid: f328120fa48d7014cbbc717eb95e3b82, type: 2}
-  majorPinScale: 620
-  minorPinScale: 380
-  pinRotationOffset: {x: 0, y: 0, z: 0}
+  majorPinScale: 5
+  minorPinScale: 5
+  pinRotationOffset: {x: 0.18, y: 0.33, z: 0}
   pinRandomTiltDegrees: 8
   pinLocalOffset: {x: 0, y: 0, z: 0}
   pinSortingOrder: 30
@@ -628,6 +628,14 @@ MonoBehaviour:
   availableMinorColour: {r: 0.7280124, g: 0.1490196, b: 1, a: 1}
   completedColour: {r: 0, g: 1, b: 0.000000059604645, a: 0.9}
   missionSummaryText: {fileID: 344390316667846527}
+  showPlayerMarker: 1
+  player: {fileID: 0}
+  playerMarkerSprite: {fileID: 0}
+  playerMarkerSize: {x: 10, y: 10}
+  playerMarkerColour: {r: 0.9, g: 0.12, b: 0.08, a: 1}
+  playerMarkerLabel: YOU ARE HERE
+  playerMarkerLabelSize: {x: 130, y: 24}
+  playerMarkerLabelOffset: {x: 0, y: 22}
   poiUnlocked:
     m_PersistentCalls:
       m_Calls: []
