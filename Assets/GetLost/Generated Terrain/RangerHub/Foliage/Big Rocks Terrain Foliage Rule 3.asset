@@ -1,0 +1,456 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33f6dd97a34a48a5950bb1234e18fda4, type: 3}
+  m_Name: Big Rocks Terrain Foliage Rule 3
+  m_EditorClassIdentifier: Thomas.TerrainFoliageSpawner.Runtime::Thomas.TerrainFoliageSpawner.TerrainFoliageRule
+  terrainLayer: {fileID: 8574412962073106934, guid: bca3207d0a8055045bbd0985eb2619ad, type: 2}
+  additionalTerrainLayers: []
+  minimumLayerWeight: 0.1
+  prefabEntries:
+  - prefab: {fileID: 677324816275205401, guid: 1f0bc2fa9d7376e4aa6dba84e43ef9b9, type: 3}
+    weight: 10
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: -0.1, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 9123190149648707229, guid: 3261043d505eeb44db7bb48689c98793, type: 3}
+    weight: 30
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: -0.1, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 4138884576316786660, guid: a45663f32dff8254cb6b92a676127929, type: 3}
+    weight: 10
+    outputMode: 0
+    gameObjectStorageMode: 0
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 16
+    detailConcentration: 3
+    customDetailRadius: 4
+    customDetailFalloff: 0.5
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 6992618014119924460, guid: 45c71f04486d33e4099f7e5f675f5636, type: 3}
+    weight: 10
+    outputMode: 0
+    gameObjectStorageMode: 0
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 16
+    detailConcentration: 2
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5346199970284226971, guid: 74f341393e19e88468f3d009be6be0a6, type: 3}
+    weight: 10
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: -10, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 3878962502051526160, guid: 6dd3b235a6e4e8347bed54abffef4ab5, type: 3}
+    weight: 1
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 665492534404265339, guid: cd402ddb0eed6034b9e05263170a08af, type: 3}
+    weight: 1
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 6750386137946132836, guid: 8c0a930a4ca2f314d96b4bf6fd7d39ff, type: 3}
+    weight: 1
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 5638967418433778640, guid: f5ef8289b8d184e4ca3b4bbbab303505, type: 3}
+    weight: 1
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 8242486930559088634, guid: 165e82057a816b2418bd1d9c69c1d64f, type: 3}
+    weight: 1
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  - prefab: {fileID: 677324816275205401, guid: 1f0bc2fa9d7376e4aa6dba84e43ef9b9, type: 3}
+    weight: 1
+    outputMode: 0
+    gameObjectStorageMode: 1
+    useForCliffFaces: 0
+    alignToTerrainNormal: 1
+    randomYRotation: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    detailDensity: 1
+    detailConcentration: 0
+    customDetailRadius: 2
+    customDetailFalloff: 0.35
+    allowMeadowExpansion: 1
+    treeRandomRotation: 1
+    treeScaleMultiplier: 1
+    treeColor: {r: 1, g: 1, b: 1, a: 1}
+    treeLightmapColor: {r: 1, g: 1, b: 1, a: 1}
+    grassInstancesPerSample: 4
+    grassSpread: 2.25
+    grassMinimumWidthScale: 0.8
+    grassMaximumWidthScale: 1.25
+    grassMinimumHeightScale: 0.85
+    grassMaximumHeightScale: 1.4
+    grassAlignToTerrainNormal: 1
+    grassRandomYRotation: 1
+    grassGroundOffset: 0
+    detailMinWidth: 0
+    detailMaxWidth: 0
+    detailMinHeight: 0
+    detailMaxHeight: 0
+    detailNoiseSpread: 0
+    detailHealthyColor: {r: 0, g: 0, b: 0, a: 0}
+    detailDryColor: {r: 0, g: 0, b: 0, a: 0}
+  spawnChance: 0.039
+  useCliffFormationDistribution: 0
+  cliffSamplesPerCell: 2
+  cliffMinimumSlope: 38
+  cliffFullDensitySlope: 60
+  cliffReliefRadius: 10
+  cliffMinimumHeightDrop: 4
+  cliffFullHeightDrop: 12
+  cliffPatchSize: 45
+  minimumCliffPatchDensity: 0.08
+  maximumCliffPatchDensity: 1
+  cliffPatchContrast: 0.75
+  cliffPatchDomainWarp: 0.45
+  buildContinuousCliffFaces: 0
+  cliffFaceSpacing: 18
+  cliffFaceMinimumWidthScale: 4
+  cliffFaceMaximumWidthScale: 7
+  cliffFaceMinimumHeightScale: 5
+  cliffFaceMaximumHeightScale: 9
+  cliffFaceMinimumDepthScale: 2
+  cliffFaceMaximumDepthScale: 3.5
+  cliffFaceEmbedDepth: 2.5
+  cliffFaceYawJitter: 8
+  useNaturalTreeDensityVariation: 0
+  naturalTreePatchSize: 260
+  minimumNaturalTreeDensity: 0.08
+  maximumNaturalTreeDensity: 1
+  naturalTreeDensityContrast: 0.75
+  naturalTreeDomainWarp: 0.4
+  followNaturalForestDensity: 0
+  useUnderstoryThickets: 0
+  understoryThicketSize: 24
+  minimumUnderstoryThicketDensity: 0.08
+  maximumUnderstoryThicketDensity: 1
+  understoryThicketContrast: 0.75
+  understoryThicketDomainWarp: 0.55
+  useGentleGroundMeadows: 0
+  meadowMaximumSlope: 14
+  meadowRadiusBonus: 3
+  meadowDensityMultiplier: 1.15
+  additionalTerrainDetailSamplesPerCell: 0
+  useSlopeLimit: 1
+  minimumSlope: 0
+  maximumSlope: 60.8
+  alignToTerrainNormal: 1
+  randomYRotation: 1
+  minimumScale: 0.8
+  maximumScale: 3
+  prefabs: []
+  prefabWeights: []
+  prefabPositionOffsets: []
+  prefabRotationOffsets: []
+  prefabScaleMultipliers: []

@@ -7,6 +7,7 @@ namespace Thomas.TerrainFoliageSpawner.Editor
     public sealed class TerrainFoliageRuleEditor : UnityEditor.Editor
     {
         private SerializedProperty terrainLayer;
+        private SerializedProperty additionalTerrainLayers;
         private SerializedProperty minimumLayerWeight;
         private SerializedProperty prefabEntries;
         private SerializedProperty spawnChance;
@@ -67,6 +68,8 @@ namespace Thomas.TerrainFoliageSpawner.Editor
             }
 
             terrainLayer = serializedObject.FindProperty("terrainLayer");
+            additionalTerrainLayers =
+                serializedObject.FindProperty("additionalTerrainLayers");
             minimumLayerWeight =
                 serializedObject.FindProperty("minimumLayerWeight");
             prefabEntries =
@@ -184,6 +187,10 @@ namespace Thomas.TerrainFoliageSpawner.Editor
                 EditorStyles.boldLabel);
 
             EditorGUILayout.PropertyField(terrainLayer);
+            EditorGUILayout.PropertyField(
+                additionalTerrainLayers,
+                new GUIContent("Additional Terrain Layers"),
+                true);
             EditorGUILayout.PropertyField(minimumLayerWeight);
 
             EditorGUILayout.Space(10f);

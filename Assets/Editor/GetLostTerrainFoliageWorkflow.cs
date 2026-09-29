@@ -83,8 +83,9 @@ public static class GetLostTerrainFoliageWorkflow
         List<LayerMapping> mappings)
     {
         TerrainLayer[] sources = NormaliseRules(selectedRules)
-            .Where(r => r.terrainLayer)
-            .Select(r => r.terrainLayer)
+            .SelectMany(r => new[] { r.terrainLayer }
+                .Concat(r.additionalTerrainLayers ?? Enumerable.Empty<TerrainLayer>()))
+            .Where(layer => layer)
             .Distinct()
             .ToArray();
         mappings.RemoveAll(m => !sources.Contains(m.source));
@@ -175,7 +176,11 @@ public static class GetLostTerrainFoliageWorkflow
             throw new InvalidOperationException("The world needs Terrain tiles and the settings source needs assigned foliage rules.");
         foreach (var rule in sourceRules)
         {
-            if (!rule.terrainLayer || !mappings.Any(m => m.source == rule.terrainLayer && m.target))
+            IEnumerable<TerrainLayer> requiredLayers =
+                new[] { rule.terrainLayer }.Concat(
+                    rule.additionalTerrainLayers ?? Enumerable.Empty<TerrainLayer>());
+            if (requiredLayers.Any(layer =>
+                    layer && !mappings.Any(m => m.source == layer && m.target)))
                 throw new InvalidOperationException($"Choose a generated surface for rule '{rule.name}'.");
             if (string.IsNullOrEmpty(AssetDatabase.GetAssetPath(rule)))
                 throw new InvalidOperationException($"Save foliage rule '{rule.name}' as an asset first.");
@@ -224,6 +229,13 @@ public static class GetLostTerrainFoliageWorkflow
                 copy.name = source.name;
             }
             copy.terrainLayer = mappings.First(m => m.source == source.terrainLayer).target;
+            copy.additionalTerrainLayers = (source.additionalTerrainLayers ??
+                    new List<TerrainLayer>())
+                .Where(layer => layer)
+                .Select(layer => mappings.First(m => m.source == layer).target)
+                .Where(layer => layer && layer != copy.terrainLayer)
+                .Distinct()
+                .ToList();
             EditorUtility.SetDirty(copy);
             AssetDatabase.SaveAssetIfDirty(copy);
             if (source != copy)

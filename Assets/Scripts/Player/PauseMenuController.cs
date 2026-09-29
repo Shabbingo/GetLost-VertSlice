@@ -1,9 +1,11 @@
+using GetLost.PlayerTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
+[DefaultExecutionOrder(-100)]
 public class PauseMenuController : MonoBehaviour
 {
     [Header("UI")]
@@ -28,12 +30,14 @@ public class PauseMenuController : MonoBehaviour
     private bool previousCursorVisible;
 
     private bool[] previousBehaviourStates;
+    private PlayerInputContextManager inputContext;
 
     public bool IsPaused => isPaused;
 
     private void Awake()
     {
         EnsureEventSystem();
+        inputContext = FindAnyObjectByType<PlayerInputContextManager>();
 
         if (pauseMenuRoot != null)
             pauseMenuRoot.SetActive(false);
@@ -66,7 +70,8 @@ public class PauseMenuController : MonoBehaviour
         // another Input Action just for Escape.
         if ((pauseAction == null || pauseAction.action == null) &&
             Keyboard.current != null &&
-            Keyboard.current.escapeKey.wasPressedThisFrame)
+            Keyboard.current.escapeKey.wasPressedThisFrame &&
+            !AnotherMenuOwnsInput())
         {
             TogglePause();
         }
@@ -74,7 +79,16 @@ public class PauseMenuController : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
+        if (AnotherMenuOwnsInput())
+            return;
         TogglePause();
+    }
+
+    private bool AnotherMenuOwnsInput()
+    {
+        if (inputContext == null)
+            inputContext = FindAnyObjectByType<PlayerInputContextManager>();
+        return inputContext != null && inputContext.IsMenuOpen;
     }
 
     public void TogglePause()

@@ -71,6 +71,26 @@ namespace GetLost.Wagon
             link.Initialize(wagon);
         }
 
+        /// <summary>Moves the runtime wagon to a clear, terrain-supported position near the target.</summary>
+        public static bool CallWagonTo(Transform target)
+        {
+            if (target == null)
+                return false;
+            WagonWorld wagonWorld = EnsureCreated();
+            if (wagonWorld == null || wagonWorld.Wagon == null)
+                return false;
+
+            Vector3 forward = Vector3.ProjectOnPlane(target.forward, Vector3.up).normalized;
+            if (forward.sqrMagnitude < 0.1f)
+                forward = Vector3.forward;
+            if (!TryFindSpawn(target.position, forward, wagonWorld.Wagon,
+                    out Vector3 position, out Quaternion rotation))
+                return false;
+
+            wagonWorld.Wagon.PlaceBody(position + Vector3.up * 0.78f, rotation);
+            return true;
+        }
+
         private static bool TryFindSpawn(Vector3 playerPosition, Vector3 forward,
             WagonController settings,
             out Vector3 location, out Quaternion rotation)

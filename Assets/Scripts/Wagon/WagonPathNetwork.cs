@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,12 @@ namespace GetLost.Wagon
     /// </summary>
     public sealed class WagonPathNetwork : MonoBehaviour
     {
+        /// <summary>
+        /// Raised for each newly committed centre-line segment. Mission detection
+        /// subscribes through an adapter so progression is not tied to path colliders.
+        /// </summary>
+        public static event Action<Vector3, Vector3, float> AnyPathSegmentAdded;
+
         public IReadOnlyList<Vector3> Points => points;
         public float PathWidth { get; private set; }
 
@@ -33,6 +40,14 @@ namespace GetLost.Wagon
         public void AddPolyline(IReadOnlyList<Vector3> newPoints)
         {
             if (newPoints == null || newPoints.Count < 2) return;
+
+            for (int i = 1; i < newPoints.Count; i++)
+            {
+                Vector3 segmentStart = newPoints[i - 1];
+                Vector3 segmentEnd = newPoints[i];
+                if (Vector3.ProjectOnPlane(segmentEnd - segmentStart, Vector3.up).sqrMagnitude > 0.0001f)
+                    AnyPathSegmentAdded?.Invoke(segmentStart, segmentEnd, PathWidth);
+            }
 
             for (int i = 0; i < newPoints.Count; i++)
             {
