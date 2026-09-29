@@ -1,0 +1,15 @@
+GET LOST TERRAIN GENERATION REPORT
+World: RangerHub
+Seed: 50655
+Tiles: 1 x 1; each 1000 m; total 1000 x 1000 m
+Heightmap: 1025; paint: 512; generated range 143.5–421.3 m
+Maximum seam error after all passes: 0.000 m
+Minor seam reconciliation: edge-only averaging, guarded at 0.5 m maximum
+Design inputs: 0 landform stamps, 0 route corridors
+Connected drainage erosion: 2 cycles at requested 10 m; maximum cut 3.321 m, maximum deposit 1.660 m, RMS change 0.630 m
+Hillside gullies: 14.0 m maximum relief, 140 m spacing, 4 octaves (resolution limited)
+Mountain shape: ridge sharpness 0.95, taper width 0.52, micro relief 7.0 m
+Shape-preserving finish: 2 passes, 0.72 strength, preserving relief under 2.5 m
+
+The water height is a design reference only; this tool does not create water gameplay or colliders.
+TerrainData assets are independent from all existing scenes and can be sculpted normally after generation.

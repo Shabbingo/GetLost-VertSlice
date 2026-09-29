@@ -1,0 +1,24 @@
+Foliage complete: 1/1 tiles completed; 43,749 placements. All chunk spawners and prototypes are synchronized; save the scene to keep them.
+
+Terrain 0-0:
+Accepted placements: 43,749
+Cap-counted trees and objects: 17,435
+GameObjects: 445
+Runtime streamed placements: 11,409
+Managed grass mesh instances: 119,407
+Terrain detail density written: 0
+Terrain trees written: 5,581
+Grid cells: 40,000
+Sampled points: 320,000
+Rejected by layer weight: 176,362
+Rejected by slope: 21,919
+Rejected by cliff formation: 16,495
+Rejected by cliff panel spacing: 4,599
+Rejected by spawn chance: 44,685
+Rejected by natural tree density: 12,096
+Rejected by exclusion volumes: 0
+Rejected by path clearance: 0
+Highest observed target-layer weight: 1.000
+Highest observed cliff formation density: 0.995
+
+

@@ -100,7 +100,7 @@ namespace Thomas.TerrainFoliageSpawner
             public List<TerrainFoliageExclusionVolume> exclusions;
             public List<TerrainFoliagePathClearance> paths;
             public List<TerrainFoliageSplineClearance> splines;
-            public Dictionary<TerrainFoliageRule, int> terrainLayerIndices;
+            public Dictionary<TerrainFoliageRule, int[]> terrainLayerIndices;
             public Dictionary<TerrainFoliagePrefabEntry, int> detailLayers;
             public Dictionary<int, int[,]> detailMaps;
             public Dictionary<TerrainFoliagePrefabEntry, int> treeLayers;
@@ -357,7 +357,7 @@ namespace Thomas.TerrainFoliageSpawner
             List<TerrainFoliageExclusionVolume> activeExclusions = GetActiveExclusionVolumes();
             List<TerrainFoliagePathClearance> activePaths = GetActivePathClearances();
             List<TerrainFoliageSplineClearance> activeSplines = GetActiveSplineClearances();
-            Dictionary<TerrainFoliageRule, int> terrainLayerIndices =
+            Dictionary<TerrainFoliageRule, int[]> terrainLayerIndices =
                 BuildTerrainLayerIndexCache(sampler);
 
             Dictionary<TerrainFoliageRule, Transform> ruleParents =
@@ -531,13 +531,13 @@ namespace Thomas.TerrainFoliageSpawner
                 return false;
             }
 
-            int terrainLayerIndex = context.terrainLayerIndices.TryGetValue(
+            int[] terrainLayerIndices = context.terrainLayerIndices.TryGetValue(
                 rule,
-                out int cachedLayerIndex)
-                ? cachedLayerIndex
-                : -1;
+                out int[] cachedLayerIndices)
+                ? cachedLayerIndices
+                : null;
 
-            if (terrainLayerIndex < 0)
+            if (terrainLayerIndices == null || terrainLayerIndices.Length == 0)
             {
                 report.LayerNotOnTerrain++;
                 return false;
@@ -551,7 +551,7 @@ namespace Thomas.TerrainFoliageSpawner
 
             report.SampledPoints++;
             TerrainSample sample = context.sampler.Sample(worldX, worldZ);
-            float layerWeight = sample.GetLayerWeight(terrainLayerIndex);
+            float layerWeight = GetStrongestLayerWeight(sample, terrainLayerIndices);
 
             report.HighestObservedLayerWeight = Mathf.Max(
                 report.HighestObservedLayerWeight,
@@ -1165,14 +1165,39 @@ namespace Thomas.TerrainFoliageSpawner
             return estimate;
         }
 
-        private Dictionary<TerrainFoliageRule, int> BuildTerrainLayerIndexCache(TerrainSampler sampler)
+        private Dictionary<TerrainFoliageRule, int[]> BuildTerrainLayerIndexCache(TerrainSampler sampler)
         {
-            Dictionary<TerrainFoliageRule, int> cache = new Dictionary<TerrainFoliageRule, int>();
+            Dictionary<TerrainFoliageRule, int[]> cache =
+                new Dictionary<TerrainFoliageRule, int[]>();
             if (rules == null) return cache;
             foreach (TerrainFoliageRule rule in rules)
                 if (rule != null && !cache.ContainsKey(rule))
-                    cache.Add(rule, rule.terrainLayer != null ? sampler.FindLayerIndex(rule.terrainLayer) : -1);
+                {
+                    List<int> indices = new List<int>();
+                    AddLayerIndex(indices, sampler, rule.terrainLayer);
+                    if (rule.additionalTerrainLayers != null)
+                        foreach (TerrainLayer layer in rule.additionalTerrainLayers)
+                            AddLayerIndex(indices, sampler, layer);
+                    cache.Add(rule, indices.ToArray());
+                }
             return cache;
+        }
+
+        private static void AddLayerIndex(List<int> indices, TerrainSampler sampler,
+            TerrainLayer layer)
+        {
+            if (layer == null) return;
+            int index = sampler.FindLayerIndex(layer);
+            if (index >= 0 && !indices.Contains(index)) indices.Add(index);
+        }
+
+        private static float GetStrongestLayerWeight(TerrainSample sample, int[] indices)
+        {
+            float strongest = 0f;
+            if (indices == null) return strongest;
+            for (int i = 0; i < indices.Length; i++)
+                strongest = Mathf.Max(strongest, sample.GetLayerWeight(indices[i]));
+            return strongest;
         }
 
         private List<TerrainFoliageExclusionVolume> GetActiveExclusionVolumes()
@@ -2182,11 +2207,11 @@ namespace Thomas.TerrainFoliageSpawner
                 return 0;
             }
 
-            int terrainLayerIndex = context.terrainLayerIndices.TryGetValue(
+            int[] terrainLayerIndices = context.terrainLayerIndices.TryGetValue(
                 rule,
-                out int cachedLayerIndex)
-                ? cachedLayerIndex
-                : -1;
+                out int[] cachedLayerIndices)
+                ? cachedLayerIndices
+                : null;
 
             int added = 0;
             int count = Mathf.Clamp(entry.grassInstancesPerSample, 1, 16);
@@ -2203,8 +2228,8 @@ namespace Thomas.TerrainFoliageSpawner
                     continue;
 
                 TerrainSample sample = context.sampler.Sample(worldX, worldZ);
-                if (terrainLayerIndex < 0 ||
-                    sample.GetLayerWeight(terrainLayerIndex) < rule.minimumLayerWeight)
+                if (terrainLayerIndices == null || terrainLayerIndices.Length == 0 ||
+                    GetStrongestLayerWeight(sample, terrainLayerIndices) < rule.minimumLayerWeight)
                 {
                     continue;
                 }

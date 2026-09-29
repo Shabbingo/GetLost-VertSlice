@@ -75,6 +75,12 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
     [SerializeField] TerrainLayer soilLayer;
     [SerializeField] TerrainLayer rockLayer;
     [SerializeField] TerrainLayer highlandLayer;
+    [SerializeField, Range(0f, 60f)] float rockSlopeStart = 12f;
+    [SerializeField, Range(1f, 75f)] float rockSlopeFull = 32f;
+    [SerializeField, Range(0f, 1f)] float soilHeightEnd = .34f;
+    [SerializeField, Range(0f, 1f)] float highlandHeightStart = .52f;
+    [SerializeField, Range(0f, 1f)] float highlandHeightFull = .78f;
+    [SerializeField, HideInInspector] int surfaceDistributionVersion;
     [SerializeField] Material terrainMaterial;
     [SerializeField] int terrainPhysicsLayer;
     [SerializeField] string outputRoot = DefaultOutput;
@@ -134,6 +140,27 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
     [MenuItem("Tools/Get Lost/Terrain/Terrain World Generator")]
     static void Open() => GetWindow<GetLostTerrainGeneratorWindow>("Get Lost Terrain");
 
+    [MenuItem("Tools/Get Lost/Terrain/Repaint Selected Terrain World Surfaces")]
+    static void RepaintSelectedTerrainWorldSurfaces()
+    {
+        GameObject selected = Selection.activeGameObject;
+        Terrain[] terrains = selected
+            ? selected.GetComponentsInChildren<Terrain>(true)
+            : Array.Empty<Terrain>();
+        if (terrains.Length == 0)
+        {
+            EditorUtility.DisplayDialog(
+                "Select a Terrain World",
+                "Select the generated terrain world root in the Hierarchy, then run this command again.",
+                "OK");
+            return;
+        }
+
+        GetLostTerrainGeneratorWindow window = GetWindow<GetLostTerrainGeneratorWindow>("Get Lost Terrain");
+        window.foliageWorldRoot = selected;
+        window.RepaintExistingTerrainSurfaces(terrains);
+    }
+
     [MenuItem("GameObject/Get Lost/Terrain Design/Landform Stamp", false, 10)]
     static void CreateLandformStamp()
     {
@@ -181,6 +208,15 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
             surfaceFinishPasses = 2;
             surfaceFinishStrength = .72f;
             preservedMicroReliefMetres = 2.5f;
+        }
+        if (surfaceDistributionVersion < 1)
+        {
+            rockSlopeStart = 12f;
+            rockSlopeFull = 32f;
+            soilHeightEnd = .34f;
+            highlandHeightStart = .52f;
+            highlandHeightFull = .78f;
+            surfaceDistributionVersion = 1;
         }
     }
 
@@ -564,8 +600,26 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
         soilLayer = (TerrainLayer)EditorGUILayout.ObjectField("Soil / Low Ground", soilLayer, typeof(TerrainLayer), false);
         rockLayer = (TerrainLayer)EditorGUILayout.ObjectField("Rock", rockLayer, typeof(TerrainLayer), false);
         highlandLayer = (TerrainLayer)EditorGUILayout.ObjectField("Highland", highlandLayer, typeof(TerrainLayer), false);
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Surface Distribution", EditorStyles.miniBoldLabel);
+        rockSlopeStart = EditorGUILayout.Slider(new GUIContent("Rock Slope Start", "Slope where the rock surface starts blending in."), rockSlopeStart, 0f, 60f);
+        rockSlopeFull = EditorGUILayout.Slider(new GUIContent("Rock Slope Full", "Slope where the rock surface reaches full strength."), rockSlopeFull, Mathf.Max(rockSlopeStart + 1f, 1f), 75f);
+        soilHeightEnd = EditorGUILayout.Slider(new GUIContent("Soil Height End", "Soil fades out by this fraction of the generated land's actual height range."), soilHeightEnd, .05f, .65f);
+        highlandHeightStart = EditorGUILayout.Slider(new GUIContent("Highland Start", "Highland starts at this fraction of the generated land's actual height range."), highlandHeightStart, .2f, .9f);
+        highlandHeightFull = EditorGUILayout.Slider(new GUIContent("Highland Full", "Highland reaches full strength at this fraction of the generated land's actual height range."), highlandHeightFull, Mathf.Min(highlandHeightStart + .05f, .95f), 1f);
         terrainMaterial = (Material)EditorGUILayout.ObjectField("Terrain Material", terrainMaterial, typeof(Material), false);
         terrainPhysicsLayer = EditorGUILayout.LayerField("Terrain Physics Layer", terrainPhysicsLayer);
+
+        Terrain[] existingTerrains = foliageWorldRoot
+            ? foliageWorldRoot.GetComponentsInChildren<Terrain>(true)
+            : Array.Empty<Terrain>();
+        using (new EditorGUI.DisabledScope(existingTerrains.Length == 0 || UniqueLayers().Length == 0))
+        {
+            if (GUILayout.Button("Repaint Existing Terrain Surfaces", GUILayout.Height(28)))
+                RepaintExistingTerrainSurfaces(existingTerrains);
+        }
+        if (existingTerrains.Length == 0)
+            EditorGUILayout.HelpBox("Assign Terrain World Root below to repaint an already generated world without changing its shape or foliage.", MessageType.None);
     }
 
     void DrawPreview()
@@ -770,7 +824,7 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
             {
                 int tileIndex = tileZ * tilesX + tileX;
                 EditorUtility.DisplayProgressBar("Get Lost Terrain", $"Painting final terrain {tileIndex + 1}/{terrains.Count}", .97f + .02f * tileIndex / terrains.Count);
-                PaintTerrain(terrains[tileIndex].terrainData, tileX, tileZ, context, surfaceLayers);
+                PaintTerrain(terrains[tileIndex], min, max, surfaceLayers);
             }
 
             ReconcileMinorSeams(terrains);
@@ -1164,25 +1218,39 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
 
     TerrainLayer[] UniqueLayers() => new[] { grassLayer, soilLayer, rockLayer, highlandLayer }.Where(layer => layer != null).Distinct().ToArray();
 
-    void PaintTerrain(TerrainData data, int tileX, int tileZ, GenerationContext context, TerrainLayer[] layers)
+    void PaintTerrain(Terrain terrain, float surfaceMinimum, float surfaceMaximum, TerrainLayer[] layers)
     {
+        TerrainData data = terrain.terrainData;
         int resolution = data.alphamapResolution;
         float[,,] map = new float[resolution, resolution, layers.Length];
         int grass = Array.IndexOf(layers, grassLayer), soil = Array.IndexOf(layers, soilLayer);
         int rock = Array.IndexOf(layers, rockLayer), high = Array.IndexOf(layers, highlandLayer);
+        float slopeFull = Mathf.Max(rockSlopeStart + 1f, rockSlopeFull);
+        float highlandFull = Mathf.Max(highlandHeightStart + .01f, highlandHeightFull);
         for (int z = 0; z < resolution; z++)
         for (int x = 0; x < resolution; x++)
         {
             float u = x / (resolution - 1f), v = z / (resolution - 1f);
-            float h = data.GetInterpolatedHeight(u, v) + worldOrigin.y;
+            float h = data.GetInterpolatedHeight(u, v) + terrain.transform.position.y;
+            float height01 = Mathf.InverseLerp(surfaceMinimum, surfaceMaximum, h);
             float slope = data.GetSteepness(u, v);
-            float wx = worldOrigin.x + tileX * tileSize + u * tileSize;
-            float wz = worldOrigin.z + tileZ * tileSize + v * tileSize;
+            float wx = terrain.transform.position.x + u * data.size.x;
+            float wz = terrain.transform.position.z + v * data.size.z;
             float moisture = .5f + .5f * FbmValue(new Vector2(wx, wz) / 650f + SeedOffset(seed + 7001), 3, .55f, 2.03f);
-            float rockWeight = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(24f, 43f, slope));
-            float highWeight = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(baseHeight + mountainHeight * .45f, baseHeight + mountainHeight * .82f, h)) * (1f - rockWeight);
-            float soilWeight = Mathf.Clamp01(Mathf.InverseLerp(waterLevel + 35f, waterLevel - 8f, h) * .75f + (1f - moisture) * .28f) * (1f - rockWeight);
-            float grassWeight = Mathf.Max(.02f, 1f - rockWeight - highWeight - soilWeight);
+            float rockMask = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(rockSlopeStart, slopeFull, slope));
+            float highMask = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(highlandHeightStart, highlandFull, height01));
+            float lowMask = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.04f, Mathf.Max(.05f, soilHeightEnd), height01));
+
+            // Independent weights create broad, readable surface bands while still
+            // blending naturally. Using the occupied height range (rather than the
+            // theoretical mountain height) keeps every generated preset paintable.
+            float rockWeight = rockMask * 1.35f;
+            float highWeight = highMask * (1f - rockMask * .45f);
+            float soilWeight = lowMask * (.35f + (1f - moisture) * .65f) * (1f - rockMask * .7f);
+            float grassWeight = Mathf.Max(.035f,
+                (1f - rockMask * .92f) *
+                (1f - highMask * .9f) *
+                (1f - lowMask * .72f));
             if (grass >= 0) map[z, x, grass] += grassWeight;
             if (soil >= 0) map[z, x, soil] += soilWeight;
             if (rock >= 0) map[z, x, rock] += rockWeight;
@@ -1193,6 +1261,104 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
             else for (int layer = 0; layer < layers.Length; layer++) map[z, x, layer] /= total;
         }
         data.SetAlphamaps(0, 0, map);
+        data.SetBaseMapDirty();
+    }
+
+    void RepaintExistingTerrainSurfaces(Terrain[] terrains)
+    {
+        terrains = terrains.Where(terrain => terrain && terrain.terrainData).ToArray();
+        if (terrains.Length == 0)
+            return;
+
+        TerrainLayer[] layers = terrains[0].terrainData.terrainLayers.Where(layer => layer).ToArray();
+        ResolveExistingSurfaceRoles(layers);
+        if (layers.Length == 0 || grassLayer == null)
+        {
+            EditorUtility.DisplayDialog(
+                "Terrain Layers Missing",
+                "The selected terrain needs at least a Grass Terrain Layer before it can be repainted.",
+                "OK");
+            return;
+        }
+        MeasureTerrainHeightRange(terrains, out float minimum, out float maximum);
+        Undo.RecordObjects(terrains.Select(terrain => (Object)terrain.terrainData).ToArray(), "Repaint Terrain Surfaces");
+        try
+        {
+            for (int i = 0; i < terrains.Length; i++)
+            {
+                EditorUtility.DisplayProgressBar("Get Lost Terrain", $"Repainting terrain surface {i + 1}/{terrains.Length}", i / (float)terrains.Length);
+                TerrainData data = terrains[i].terrainData;
+                if (!data.terrainLayers.SequenceEqual(layers))
+                    data.terrainLayers = layers;
+                PaintTerrain(terrains[i], minimum, maximum, layers);
+                EditorUtility.SetDirty(data);
+            }
+            AssetDatabase.SaveAssets();
+            SceneView.RepaintAll();
+            string coverage = DescribeSurfaceCoverage(terrains);
+            Debug.Log($"[Get Lost Terrain] Repainted {terrains.Length} terrain tiles. {coverage}", foliageWorldRoot);
+            EditorUtility.DisplayDialog("Terrain Surfaces Repainted", coverage, "OK");
+        }
+        finally
+        {
+            EditorUtility.ClearProgressBar();
+        }
+    }
+
+    void ResolveExistingSurfaceRoles(TerrainLayer[] layers)
+    {
+        grassLayer = ResolveSurfaceRole(layers, grassLayer, "grass");
+        soilLayer = ResolveSurfaceRole(layers, soilLayer, "mud", "soil", "dirt");
+        rockLayer = ResolveSurfaceRole(layers, rockLayer, "rocks", "rock", "cliff");
+        highlandLayer = ResolveSurfaceRole(layers, highlandLayer, "pebble", "highland", "sand");
+    }
+
+    static TerrainLayer ResolveSurfaceRole(TerrainLayer[] layers, TerrainLayer current, params string[] nameHints)
+    {
+        if (current && layers.Contains(current))
+            return current;
+        return layers.FirstOrDefault(layer => nameHints.Any(hint =>
+            layer.name.IndexOf(hint, StringComparison.OrdinalIgnoreCase) >= 0));
+    }
+
+    static void MeasureTerrainHeightRange(IReadOnlyList<Terrain> terrains, out float minimum, out float maximum)
+    {
+        minimum = float.MaxValue;
+        maximum = float.MinValue;
+        foreach (Terrain terrain in terrains)
+        {
+            TerrainData data = terrain.terrainData;
+            float[,] heights = data.GetHeights(0, 0, data.heightmapResolution, data.heightmapResolution);
+            for (int z = 0; z < heights.GetLength(0); z++)
+            for (int x = 0; x < heights.GetLength(1); x++)
+            {
+                float worldHeight = terrain.transform.position.y + heights[z, x] * data.size.y;
+                minimum = Mathf.Min(minimum, worldHeight);
+                maximum = Mathf.Max(maximum, worldHeight);
+            }
+        }
+        if (maximum - minimum < .01f)
+            maximum = minimum + .01f;
+    }
+
+    static string DescribeSurfaceCoverage(IReadOnlyList<Terrain> terrains)
+    {
+        TerrainLayer[] layers = terrains[0].terrainData.terrainLayers;
+        double[] totals = new double[layers.Length];
+        long samples = 0;
+        foreach (Terrain terrain in terrains)
+        {
+            TerrainData data = terrain.terrainData;
+            float[,,] map = data.GetAlphamaps(0, 0, data.alphamapWidth, data.alphamapHeight);
+            for (int z = 0; z < map.GetLength(0); z++)
+            for (int x = 0; x < map.GetLength(1); x++)
+            for (int layer = 0; layer < Mathf.Min(map.GetLength(2), totals.Length); layer++)
+                totals[layer] += map[z, x, layer];
+            samples += (long)map.GetLength(0) * map.GetLength(1);
+        }
+
+        return "Average layer weights: " + string.Join(", ", layers.Select((layer, index) =>
+            $"{(layer ? layer.name : $"Layer {index}")} {(samples > 0 ? totals[index] * 100d / samples : 0d):0.0}%"));
     }
 
     void ApplyErosion(GameObject root, List<Terrain> terrains)
@@ -1414,6 +1580,8 @@ public sealed class GetLostTerrainGeneratorWindow : EditorWindow
         report.AppendLine($"Hillside gullies: {(applyHillsideErosion ? $"{hillsideErosionRelief:0.0} m maximum relief, {hillsideGullySpacing:0} m spacing, {hillsideErosionOctaves} octaves (resolution limited)" : "disabled")}");
         report.AppendLine($"Mountain shape: ridge sharpness {mountainRidgeSharpness:0.00}, taper width {mountainTaperWidth:0.00}, micro relief {mountainDetailHeight:0.0} m");
         report.AppendLine($"Shape-preserving finish: {(applySurfaceFinish ? $"{surfaceFinishPasses} passes, {surfaceFinishStrength:0.00} strength, preserving relief under {preservedMicroReliefMetres:0.0} m" : "disabled")}");
+        report.AppendLine($"Surface distribution: rock {rockSlopeStart:0.#}–{rockSlopeFull:0.#}° slope; soil below {soilHeightEnd:P0}; highland {highlandHeightStart:P0}–{highlandHeightFull:P0} of occupied height range");
+        report.AppendLine(DescribeSurfaceCoverage(terrains));
         report.AppendLine("\nThe water height is a design reference only; this tool does not create water gameplay or colliders.");
         report.AppendLine("TerrainData assets are independent from all existing scenes and can be sculpted normally after generation.");
         File.WriteAllText(folder + "/Generation Report.txt", report.ToString());

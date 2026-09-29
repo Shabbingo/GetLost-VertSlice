@@ -11,6 +11,10 @@ namespace Thomas.TerrainFoliageSpawner
         [Header("Terrain Layer")]
         public TerrainLayer terrainLayer;
 
+        [Tooltip("Optional additional terrain surfaces accepted by this rule. The strongest matching layer weight is used.")]
+        public List<TerrainLayer> additionalTerrainLayers =
+            new List<TerrainLayer>();
+
         [Range(0f, 1f)]
         public float minimumLayerWeight = 0.1f;
 
@@ -421,6 +425,11 @@ namespace Thomas.TerrainFoliageSpawner
 
         private void OnValidate()
         {
+            additionalTerrainLayers ??= new List<TerrainLayer>();
+            additionalTerrainLayers.RemoveAll(layer => layer == null || layer == terrainLayer);
+            for (int i = additionalTerrainLayers.Count - 1; i >= 0; i--)
+                if (additionalTerrainLayers.IndexOf(additionalTerrainLayers[i]) != i)
+                    additionalTerrainLayers.RemoveAt(i);
             minimumLayerWeight = Mathf.Clamp01(minimumLayerWeight);
             spawnChance = Mathf.Clamp01(spawnChance);
             cliffSamplesPerCell = Mathf.Clamp(cliffSamplesPerCell, 1, 6);

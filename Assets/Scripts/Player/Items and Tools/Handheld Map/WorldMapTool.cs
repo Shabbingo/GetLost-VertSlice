@@ -33,6 +33,9 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
     [SerializeField] private HeldMapPresentation heldPresentation;
 
     [Header("Mission Field Note")]
+    [Tooltip("Mission presentation belongs on the physical Mission Board. Leave disabled for the handheld navigation map.")]
+    [SerializeField] private bool showMissionInformationOnHandheldMap;
+
     [Tooltip("Optional map text. If empty, a quiet field note is created on the physical map at runtime.")]
     [SerializeField] private TMP_Text missionFieldNoteText;
 
@@ -162,6 +165,7 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
             DetectTerrainBounds();
 
         EnsureMissionMarkerHierarchy();
+        ApplyMissionInformationVisibility();
 
         if (generateMapOnAwake)
             RefreshGeneratedMap();
@@ -382,6 +386,13 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
 
     private void UpdateMissionMarkers()
     {
+        if (!showMissionInformationOnHandheldMap)
+        {
+            if (startMarker) startMarker.gameObject.SetActive(false);
+            if (endMarker) endMarker.gameObject.SetActive(false);
+            return;
+        }
+
         EnsureMissionMarkerHierarchy();
 
         if (hasStartWorldPosition)
@@ -574,6 +585,13 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
 
     private void RefreshMissionFieldNote()
     {
+        if (!showMissionInformationOnHandheldMap)
+        {
+            if (missionFieldNoteText)
+                missionFieldNoteText.gameObject.SetActive(false);
+            return;
+        }
+
         if (missionFieldNoteText == null)
         {
             CreateMissionFieldNote();
@@ -588,6 +606,18 @@ public class WorldMapTool : MonoBehaviour, IPlayerTool
         // the marker methods, but the vertical slice does not require them.
         if (string.IsNullOrWhiteSpace(missionFieldNoteText.text))
             missionFieldNoteText.text = "FIELD NOTE\nNo active survey.";
+        missionFieldNoteText.gameObject.SetActive(true);
+    }
+
+    private void ApplyMissionInformationVisibility()
+    {
+        if (missionFieldNoteText)
+            missionFieldNoteText.gameObject.SetActive(showMissionInformationOnHandheldMap);
+        if (!showMissionInformationOnHandheldMap)
+        {
+            if (startMarker) startMarker.gameObject.SetActive(false);
+            if (endMarker) endMarker.gameObject.SetActive(false);
+        }
     }
 
     private void CreateMissionFieldNote()

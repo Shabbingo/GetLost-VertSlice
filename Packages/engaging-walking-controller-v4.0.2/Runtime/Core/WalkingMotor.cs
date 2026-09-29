@@ -94,6 +94,13 @@ namespace Tom.WalkingController
         // The motor remains the only owner of CharacterController.Move.
         public System.Func<Vector3, Vector3> DisplacementFilter { get; set; }
         public float ExternalSpeedMultiplier { get; set; } = 1f;
+        /// <summary>
+        /// Optional debug/cheat multiplier applied after normal surface, exertion and
+        /// wagon modifiers. Kept separate so cheats do not overwrite those systems.
+        /// </summary>
+        public float CheatSpeedMultiplier { get; set; } = 1f;
+        /// <summary>Debug override that keeps footing full and prevents uncontrolled sliding.</summary>
+        public bool CheatSuperStableLegs { get; set; }
         public bool SuppressJump { get; set; }
 
         private void Reset()
@@ -169,43 +176,56 @@ namespace Tom.WalkingController
 
             IsCarefulWalking = input.CarefulWalkHeld;
             bool sprintingIntoSlide = input.SprintHeld && !IsCarefulWalking && moveInput.y > 0.1f;
+            if (CheatSuperStableLegs)
+            {
+                currentFooting = 1f;
+                previousFooting = 1f;
+                FootingLossPerSecond = 0f;
+                IsSliding = false;
+                slideVelocity = Vector3.zero;
+                previousDesiredDirection = desiredDirection;
+            }
+            else
+            {
+                UpdateFooting(
+                    grounded,
+                    desiredDirection,
+                    moveInput.magnitude,
+                    CurrentSlopeAngle,
+                    downhillAmount,
+                    traction,
+                    footingLossMultiplier,
+                    sprintingIntoSlide,
+                    dt);
+
+                bool footingTriggeredSlip = useHiddenFooting
+                    && currentFooting <= slipFootingThreshold
+                    && CurrentSlopeAngle >= minimumFootingSlipAngle;
+
+                FootingLossPerSecond = dt > 0f
+                    ? Mathf.Max(0f, previousFooting - currentFooting) / dt
+                    : 0f;
+                previousFooting = currentFooting;
+
+                UpdateSliding(
+                    grounded,
+                    CurrentSlopeAngle,
+                    effectiveSlideAngle,
+                    downhillDirection,
+                    slideMultiplier,
+                    traction,
+                    sprintingIntoSlide,
+                    footingTriggeredSlip,
+                    dt);
+            }
             IsSprinting = sprintingIntoSlide && !IsSliding;
-
-            UpdateFooting(
-                grounded,
-                desiredDirection,
-                moveInput.magnitude,
-                CurrentSlopeAngle,
-                downhillAmount,
-                traction,
-                footingLossMultiplier,
-                sprintingIntoSlide,
-                dt);
-
-            bool footingTriggeredSlip = useHiddenFooting
-                && currentFooting <= slipFootingThreshold
-                && CurrentSlopeAngle >= minimumFootingSlipAngle;
-
-            FootingLossPerSecond = dt > 0f
-                ? Mathf.Max(0f, previousFooting - currentFooting) / dt
-                : 0f;
-            previousFooting = currentFooting;
-
-            UpdateSliding(
-                grounded,
-                CurrentSlopeAngle,
-                effectiveSlideAngle,
-                downhillDirection,
-                slideMultiplier,
-                traction,
-                sprintingIntoSlide,
-                footingTriggeredSlip,
-                dt);
 
             float baseSpeed = IsCarefulWalking ? carefulWalkSpeed : IsSprinting ? sprintSpeed : walkSpeed;
             float slopeSpeedMultiplier = 1f - UphillAmount * maximumUphillSlowdown + downhillAmount * maximumDownhillBoost;
             float exertionSpeedMultiplier = exertion != null ? exertion.SpeedMultiplier : 1f;
-            float targetSpeed = baseSpeed * speedMultiplier * vegetationSpeedMultiplier * slopeSpeedMultiplier * exertionSpeedMultiplier * moveInput.magnitude * Mathf.Clamp01(ExternalSpeedMultiplier);
+            float targetSpeed = baseSpeed * speedMultiplier * vegetationSpeedMultiplier *
+                slopeSpeedMultiplier * exertionSpeedMultiplier * moveInput.magnitude *
+                Mathf.Clamp01(ExternalSpeedMultiplier) * Mathf.Max(0f, CheatSpeedMultiplier);
 
             Vector3 targetPlanarVelocity = desiredDirection * targetSpeed;
             float control = grounded ? 1f : airControl;
