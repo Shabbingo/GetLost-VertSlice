@@ -45,15 +45,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8671544f17e20b4e8e04071de107f5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GetLost.Wagon.WagonController
-  capacity: 120
-  gravel: 120
+  capacity: 500
+  gravel: 500
   emptyMass: 65
   kilogramsPerUnit: 0.6
-  pullSpring: 3800
-  pullDamping: 180
-  maximumPullForce: 1900
+  pullSpring: 4400
+  pullDamping: 220
+  maximumPullForce: 2400
   handleSlack: 0.38
   gripReach: 0.75
+  emptyPullSpeedMultiplier: 0.98
+  loadedPullSpeedMultiplier: 0.82
   preferredSpawnDistance: 5
   fallbackSpawnDistance: 8
   maximumSpawnSlope: 30

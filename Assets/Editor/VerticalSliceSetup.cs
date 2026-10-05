@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.IO;
 using System.Linq;
+using GetLost.Player;
 using GetLost.Wagon;
 using GetLost.PlayerTools;
 using Tom.WalkingController;
@@ -9,6 +10,8 @@ using UnityEditor;
 using UnityEditor.Events;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 namespace GetLost.VerticalSlice.Editor
@@ -25,6 +28,9 @@ namespace GetLost.VerticalSlice.Editor
         private const string NavigationRootName = "Navigation UI";
         private const string ToolIconsPath = "Assets/My Assets/UI/Sprites/ToolsUI.png";
         private const string DefaultFontPath = "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset";
+        private const string HealthProfilePath = "Assets/Resources/GetLost/HealthEffectsVolumeProfile.asset";
+        private const string MapPinPrefabPath = "Assets/My Assets/Prefabs/Pin.prefab";
+        private const string MapPinHeadMaterialPath = "Assets/My Assets/Materials/PinHead.mat";
 
         [InitializeOnLoadMethod]
         private static void CreateInitialAssetsWhenReady()
@@ -47,6 +53,7 @@ namespace GetLost.VerticalSlice.Editor
             else
                 EnsureNavigationTools(false);
 
+            EnsurePlayerDamageSystem();
             EnsurePauseMenu(false);
         }
 
@@ -133,6 +140,7 @@ namespace GetLost.VerticalSlice.Editor
                 SetObject(footing, "cameraEffects", cameraEffects);
                 SetObject(footing, "audioSource", audioSource);
 
+                BuildPlayerDamageSystem(root, playerCamera, look, motor, character);
                 BuildNavigationUI(root);
                 BuildPauseMenu(root);
 
@@ -145,6 +153,166 @@ namespace GetLost.VerticalSlice.Editor
             {
                 Object.DestroyImmediate(root);
             }
+        }
+
+        [MenuItem("Get Lost/Vertical Slice/Refresh Player Damage System On Player Prefab")]
+        private static void EnsurePlayerDamageSystem()
+        {
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+            {
+                EditorApplication.delayCall += EnsurePlayerDamageSystem;
+                return;
+            }
+
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                EditorApplication.playModeStateChanged -= RefreshDamageSystemAfterPlayMode;
+                EditorApplication.playModeStateChanged += RefreshDamageSystemAfterPlayMode;
+                return;
+            }
+
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) == null)
+                return;
+
+            GameObject contents = PrefabUtility.LoadPrefabContents(PrefabPath);
+            try
+            {
+                Camera playerCamera = FindPlayerCamera(contents);
+                FirstPersonLook look = contents.GetComponentInChildren<FirstPersonLook>(true);
+                WalkingMotor motor = contents.GetComponent<WalkingMotor>();
+                CharacterController character = contents.GetComponent<CharacterController>();
+                BuildPlayerDamageSystem(contents, playerCamera, look, motor, character);
+                PrefabUtility.SaveAsPrefabAsset(contents, PrefabPath);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[Vertical Slice] Refreshed player damage and spectator-camera setup on {PrefabPath}.");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(contents);
+            }
+        }
+
+        private static void RefreshDamageSystemAfterPlayMode(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.EnteredEditMode)
+                return;
+
+            EditorApplication.playModeStateChanged -= RefreshDamageSystemAfterPlayMode;
+            EditorApplication.delayCall += EnsurePlayerDamageSystem;
+        }
+
+        private static void BuildPlayerDamageSystem(
+            GameObject player,
+            Camera playerCamera,
+            FirstPersonLook look,
+            WalkingMotor motor,
+            CharacterController character)
+        {
+            if (playerCamera == null || motor == null || character == null)
+            {
+                Debug.LogWarning("[Vertical Slice] Cannot build the player damage system without the player camera, walking motor and character controller.");
+                return;
+            }
+
+            PlayerDamageController damage = player.GetComponent<PlayerDamageController>() ??
+                                              player.AddComponent<PlayerDamageController>();
+            Rigidbody tumbleBody = player.GetComponent<Rigidbody>() ?? player.AddComponent<Rigidbody>();
+            tumbleBody.useGravity = false;
+            tumbleBody.isKinematic = true;
+            tumbleBody.detectCollisions = false;
+            tumbleBody.interpolation = RigidbodyInterpolation.None;
+
+            CapsuleCollider tumbleCollider = player.GetComponent<CapsuleCollider>() ??
+                                              player.AddComponent<CapsuleCollider>();
+            tumbleCollider.center = character.center;
+            tumbleCollider.height = character.height;
+            tumbleCollider.radius = character.radius;
+            tumbleCollider.direction = 1;
+            tumbleCollider.enabled = false;
+
+            Transform volumeTransform = player.transform.Find("HealthEffectsVolume");
+            GameObject volumeObject = volumeTransform != null
+                ? volumeTransform.gameObject
+                : new GameObject("HealthEffectsVolume");
+            volumeObject.transform.SetParent(player.transform, false);
+            Volume damageVolume = volumeObject.GetComponent<Volume>() ?? volumeObject.AddComponent<Volume>();
+            damageVolume.isGlobal = true;
+            damageVolume.priority = 10f;
+            damageVolume.weight = 0f;
+            damageVolume.sharedProfile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(HealthProfilePath);
+
+            UniversalAdditionalCameraData playerCameraData = playerCamera.GetUniversalAdditionalCameraData();
+            playerCameraData.renderPostProcessing = true;
+            playerCameraData.volumeLayerMask |= 1 << volumeObject.layer;
+
+            Transform spectatorTransform = player.transform.Find("FallSpectator Camera");
+            GameObject spectatorObject = spectatorTransform != null
+                ? spectatorTransform.gameObject
+                : new GameObject("FallSpectator Camera");
+            spectatorObject.transform.SetParent(player.transform, false);
+            Camera spectatorCamera = spectatorObject.GetComponent<Camera>();
+            if (spectatorCamera == null)
+                spectatorCamera = spectatorObject.AddComponent<Camera>();
+            ConfigureSpectatorCamera(spectatorCamera, playerCamera);
+            spectatorCamera.enabled = false;
+            AudioListener spectatorListener = spectatorObject.GetComponent<AudioListener>();
+            if (spectatorListener == null)
+                spectatorListener = spectatorObject.AddComponent<AudioListener>();
+            spectatorListener.enabled = false;
+
+            UniversalAdditionalCameraData spectatorData = spectatorCamera.GetUniversalAdditionalCameraData();
+            spectatorData.renderPostProcessing = true;
+            spectatorData.volumeLayerMask = playerCameraData.volumeLayerMask;
+
+            PlayerFallController fall = player.GetComponent<PlayerFallController>() ??
+                                        player.AddComponent<PlayerFallController>();
+            SetObject(fall, "walkingMotor", motor);
+            SetObject(fall, "characterController", character);
+            SetObject(fall, "tumbleBody", tumbleBody);
+            SetObject(fall, "tumbleCollider", tumbleCollider);
+            SetObject(fall, "damageController", damage);
+            fall.ConfigureForPlayer(playerCamera.transform, look);
+            fall.ConfigureSpectatorCamera(spectatorCamera, spectatorListener);
+
+            PlayerDamageVisualController visuals = player.GetComponent<PlayerDamageVisualController>() ??
+                                                    player.AddComponent<PlayerDamageVisualController>();
+            SetObject(visuals, "damageController", damage);
+            SetObject(visuals, "damageVolume", damageVolume);
+        }
+
+        private static void ConfigureSpectatorCamera(Camera spectator, Camera source)
+        {
+            spectator.clearFlags = source.clearFlags;
+            spectator.backgroundColor = source.backgroundColor;
+            spectator.cullingMask = source.cullingMask;
+            spectator.orthographic = source.orthographic;
+            spectator.orthographicSize = source.orthographicSize;
+            spectator.fieldOfView = source.fieldOfView;
+            spectator.nearClipPlane = source.nearClipPlane;
+            spectator.farClipPlane = source.farClipPlane;
+            spectator.depth = source.depth;
+            spectator.renderingPath = source.renderingPath;
+            spectator.allowHDR = source.allowHDR;
+            spectator.allowMSAA = source.allowMSAA;
+            spectator.allowDynamicResolution = source.allowDynamicResolution;
+            spectator.targetTexture = null;
+        }
+
+        private static Camera FindPlayerCamera(GameObject player)
+        {
+            Camera fallback = null;
+            foreach (Camera candidate in player.GetComponentsInChildren<Camera>(true))
+            {
+                if (candidate == null || candidate.name == "FallSpectator Camera")
+                    continue;
+
+                if (candidate.CompareTag("MainCamera"))
+                    return candidate;
+
+                fallback ??= candidate;
+            }
+
+            return fallback;
         }
 
         [MenuItem("Get Lost/Vertical Slice/Rebuild Pause Menu On Player Prefab")]
@@ -329,7 +497,7 @@ namespace GetLost.VerticalSlice.Editor
             PlayerInputContextManager context = player.GetComponent<PlayerInputContextManager>() ?? player.AddComponent<PlayerInputContextManager>();
             ToolRadialWheelController wheel = player.GetComponent<ToolRadialWheelController>() ?? player.AddComponent<ToolRadialWheelController>();
             FirstPersonLook look = player.GetComponentInChildren<FirstPersonLook>(true);
-            Camera playerCamera = player.GetComponentInChildren<Camera>(true);
+            Camera playerCamera = FindPlayerCamera(player);
 
             // ALT belongs to the radial wheel in the vertical slice. Leaving
             // FirstPersonLook's legacy cursor-release shortcut enabled creates
@@ -436,6 +604,7 @@ namespace GetLost.VerticalSlice.Editor
             SetObject(mapTool, "toolManager", manager);
             SetObject(mapTool, "scanTransform", scanPivot);
             SetBehaviourArray(mapTool, "disableWhileFocused", look);
+            ConfigureWorldMapVisuals(mapTool);
 
             HeldMapPresentation heldPresentation = worldMapCanvasObject.AddComponent<HeldMapPresentation>();
             SetObject(heldPresentation, "mapTool", mapTool);
@@ -467,6 +636,31 @@ namespace GetLost.VerticalSlice.Editor
             SetObject(compassNeedle, "needle", needle);
             CompassTool compassTool = navigation.AddComponent<CompassTool>();
             SetObject(compassTool, "compassRoot", compassRoot);
+        }
+
+        private static void ConfigureWorldMapVisuals(WorldMapTool mapTool)
+        {
+            SerializedObject serialized = new(mapTool);
+            serialized.FindProperty("showMissionInformationOnHandheldMap").boolValue = true;
+            serialized.FindProperty("showCoordinateGrid").boolValue = true;
+            serialized.FindProperty("gridColumns").intValue = 26;
+            serialized.FindProperty("gridRows").intValue = 20;
+            serialized.FindProperty("gridLineThickness").floatValue = 1.5f;
+            serialized.FindProperty("gridColour").colorValue = new Color(0f, 0f, 0f, 0.79607844f);
+            serialized.FindProperty("visitedPoiPinPrefab").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<GameObject>(MapPinPrefabPath);
+            serialized.FindProperty("visitedPinHeadMaterial").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Material>(MapPinHeadMaterialPath);
+            serialized.FindProperty("fieldMapPinScale").floatValue = 0.1f;
+            serialized.FindProperty("visitedMajorPinScale").floatValue = 150f;
+            serialized.FindProperty("visitedMinorPinScale").floatValue = 100f;
+            serialized.FindProperty("visitedMajorColour").colorValue =
+                new Color(0f, 1f, 0.020820439f, 0.95f);
+            serialized.FindProperty("visitedMinorColour").colorValue =
+                new Color(0.37673175f, 0f, 1f, 0.95f);
+            serialized.FindProperty("zoomedFieldOfView").floatValue = 47.7f;
+            serialized.FindProperty("zoomSpeed").floatValue = 7.6f;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void ConfigureWheelSlots(ToolRadialWheelController wheel)

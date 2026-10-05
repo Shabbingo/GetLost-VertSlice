@@ -56,7 +56,7 @@ namespace GetLost.Player
 
             PlayerFallController fall = player.GetComponent<PlayerFallController>() ??
                                         player.AddComponent<PlayerFallController>();
-            Camera playerCamera = motor.GetComponentInChildren<Camera>(true);
+            Camera playerCamera = FindPlayerCamera(motor);
             FirstPersonLook look = motor.GetComponentInChildren<FirstPersonLook>(true);
             fall.ConfigureForPlayer(playerCamera != null ? playerCamera.transform : null, look);
 
@@ -75,6 +75,23 @@ namespace GetLost.Player
             if (manager == null)
                 manager = new GameObject("Game Manager").AddComponent<GameManager>();
             manager.SetPlayerDamageController(damage);
+        }
+
+        private static Camera FindPlayerCamera(WalkingMotor motor)
+        {
+            Camera fallback = null;
+            foreach (Camera candidate in motor.GetComponentsInChildren<Camera>(true))
+            {
+                if (candidate == null || candidate.name == "FallSpectator Camera")
+                    continue;
+
+                if (candidate.CompareTag("MainCamera"))
+                    return candidate;
+
+                fallback ??= candidate;
+            }
+
+            return fallback;
         }
 
         private static Volume EnsureDamageVolume(Transform player)
@@ -118,18 +135,21 @@ namespace GetLost.Player
                 : new GameObject("FallSpectator Camera");
             cameraObject.transform.SetParent(player, false);
 
-            Camera spectator = cameraObject.GetComponent<Camera>() ?? cameraObject.AddComponent<Camera>();
-            if (source != null)
+            Camera spectator = cameraObject.GetComponent<Camera>();
+            if (spectator == null)
+                spectator = cameraObject.AddComponent<Camera>();
+            if (source != null && source != spectator)
                 spectator.CopyFrom(source);
             spectator.enabled = false;
 
-            AudioListener listener = cameraObject.GetComponent<AudioListener>() ??
-                                     cameraObject.AddComponent<AudioListener>();
+            AudioListener listener = cameraObject.GetComponent<AudioListener>();
+            if (listener == null)
+                listener = cameraObject.AddComponent<AudioListener>();
             listener.enabled = false;
 
             UniversalAdditionalCameraData spectatorData = spectator.GetUniversalAdditionalCameraData();
             spectatorData.renderPostProcessing = true;
-            if (source != null)
+            if (source != null && source != spectator)
             {
                 UniversalAdditionalCameraData sourceData = source.GetUniversalAdditionalCameraData();
                 spectatorData.volumeLayerMask = sourceData.volumeLayerMask;

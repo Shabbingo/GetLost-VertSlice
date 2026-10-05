@@ -13,6 +13,7 @@ namespace GetLost.Wagon
         public bool IsHolding { get; private set; }
         public bool CanDrive => isActiveAndEnabled && motor != null && motor.enabled &&
             Time.timeScale > 0f;
+        public Vector3 PullVelocity => motor != null ? motor.Velocity : Vector3.zero;
 
         private WalkingMotor motor;
         private CharacterController character;
@@ -52,7 +53,10 @@ namespace GetLost.Wagon
 
             if (IsHolding)
             {
-                motor.ExternalSpeedMultiplier = previousSpeed * Mathf.Lerp(0.8f, 0.48f, Wagon.LoadFraction);
+                motor.ExternalSpeedMultiplier = previousSpeed * Mathf.Lerp(
+                    Wagon.emptyPullSpeedMultiplier,
+                    Wagon.loadedPullSpeedMultiplier,
+                    Wagon.LoadFraction);
 
             }
 

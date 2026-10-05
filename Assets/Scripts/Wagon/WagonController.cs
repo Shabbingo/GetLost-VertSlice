@@ -14,11 +14,15 @@ namespace GetLost.Wagon
         [Min(1f)] public float emptyMass = 65f;
         [Min(0f)] public float kilogramsPerUnit = 0.6f;
         [Header("Pulling")]
-        public float pullSpring = 3800f;
-        public float pullDamping = 180f;
-        public float maximumPullForce = 1900f;
+        public float pullSpring = 4400f;
+        public float pullDamping = 220f;
+        public float maximumPullForce = 2400f;
         public float handleSlack = 0.38f;
         public float gripReach = 0.75f;
+        [Tooltip("Player walking-speed multiplier while pulling an empty wagon.")]
+        [Range(0.1f, 1f)] public float emptyPullSpeedMultiplier = 0.98f;
+        [Tooltip("Player walking-speed multiplier while pulling a fully loaded wagon. Physical mass is unaffected.")]
+        [Range(0.1f, 1f)] public float loadedPullSpeedMultiplier = 0.82f;
         [Header("Automatic Spawn")]
         [Min(0f)] public float preferredSpawnDistance = 5f;
         [Min(0f)] public float fallbackSpawnDistance = 8f;
@@ -235,8 +239,13 @@ namespace GetLost.Wagon
             Resistance = 0f;
             if (parked) return;
             Vector3 error = Vector3.ProjectOnPlane(holder.transform.position - Grip.position, Vector3.up);
-            Vector3 force = error * pullSpring - Vector3.ProjectOnPlane(
-                FrontAxle.GetPointVelocity(Grip.position), Vector3.up) * pullDamping;
+            Vector3 gripVelocity = Vector3.ProjectOnPlane(
+                FrontAxle.GetPointVelocity(Grip.position), Vector3.up);
+            Vector3 holderVelocity = Vector3.ProjectOnPlane(holder.PullVelocity, Vector3.up);
+            // Dampen movement relative to the player rather than braking the wagon's
+            // absolute world speed. This preserves weight without imposing a low
+            // artificial terminal velocity while pulling.
+            Vector3 force = error * pullSpring + (holderVelocity - gripVelocity) * pullDamping;
             force = Vector3.ClampMagnitude(force, maximumPullForce);
             Resistance = Mathf.Clamp01(force.magnitude / maximumPullForce);
             FrontAxle.AddForceAtPosition(force, Grip.position);
