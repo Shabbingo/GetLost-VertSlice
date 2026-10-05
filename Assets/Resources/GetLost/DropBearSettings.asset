@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: DropBearSettings
   m_EditorClassIdentifier: Assembly-CSharp::GetLost.Encounters.DropBearSettings
   bearChancePerTree: 1
-  maximumInitialBears: 24
+  maximumInitialBears: 50
   minimumBearSpacing: 25
   minimumSpawnDistanceFromPlayer: 20
-  territoryRadius: 8
+  territoryRadius: 20
   maximumWagonRange: 18
   leapDuration: 0.65
   leapArcHeight: 2.5
