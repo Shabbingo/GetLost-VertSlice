@@ -636,6 +636,7 @@ GameObject:
   - component: {fileID: 6324388985730795364}
   - component: {fileID: 3086544896284378125}
   - component: {fileID: 1486717083046415393}
+  - component: {fileID: 3788652060405996536}
   m_Layer: 0
   m_Name: VerticalSlicePlayer
   m_TagString: Player
@@ -904,10 +905,10 @@ MonoBehaviour:
   sprintSlideIncrease: 0.5
   useHiddenFooting: 1
   minimumFootingSlipAngle: 30
-  footingRiskStartAngle: 15.1
+  footingRiskStartAngle: 25
   footingLossRate: 0.38
   footingRecoveryRate: 0.55
-  sprintFootingLoss: 1
+  sprintFootingLoss: 0.5
   downhillFootingLoss: 0.85
   turningFootingLoss: 0.65
   carefulFootingRecoveryMultiplier: 2.25
@@ -1295,6 +1296,29 @@ MonoBehaviour:
   - {fileID: 3086544896284378125}
   - {fileID: 472888960285344697}
   pauseTime: 1
+--- !u!136 &3788652060405996536
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1961650575213958624}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.19
+  m_Height: 1.9
+  m_Direction: 0
+  m_Center: {x: 0, y: 0.96, z: 0}
 --- !u!1 &2298858678343101485
 GameObject:
   m_ObjectHideFlags: 0
@@ -2023,7 +2047,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0

@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d74a9e50c26f47a1b38d5e69f2047c11, type: 3}
+  m_Name: DropBearSettings
+  m_EditorClassIdentifier: Assembly-CSharp::GetLost.Encounters.DropBearSettings
+  bearChancePerTree: 1
+  maximumInitialBears: 24
+  minimumBearSpacing: 25
+  minimumSpawnDistanceFromPlayer: 20
+  territoryRadius: 8
+  maximumWagonRange: 18
+  leapDuration: 0.65
+  leapArcHeight: 2.5
+  dropOnPlayerChance: 0.4
+  treeDropPlayerDamage: 12
+  treeDropKnockdownChance: 0.45
+  spillGracePeriod: 1
+  gravelLostPerSecond: 4
+  pickupRange: 3
+  pickupLookAngle: 14
+  heldScratchDelay: 1.8
+  heldScratchInterval: 1.15
+  heldScratchDamage: 6
+  escapeFromHandsChance: 0.3
+  pursuitDuration: 5
+  pursuitSpeed: 5.8
+  pursuitAttackDamage: 9
+  pursuitAttackInterval: 1.1
+  pursuitAttackRange: 1.35
+  pursuitKnockdownChance: 0.25
+  pursuitKnockdownForce: 4.5
+  fullChargeSeconds: 1.25
+  minimumThrowSpeed: 4
+  maximumThrowSpeed: 17
+  throwLift: 2.8
+  landingStunSeconds: 2.5
+  retreatAfterThrowChance: 0.55
+  sprintSpeed: 7
+  breakFreeDuration: 0.7
+  breakFreeLeapDistance: 2.6
+  climbDuration: 1.7
+  perchedReengageDelay: 2.2
+  maximumAttackRounds: 2
+  minimumEscapeTreeDistance: 8
+  maximumEscapeTreeDistance: 70
+  leapSounds:
+  - {fileID: 8300000, guid: ee004b79d8fd2ea4b833f1e41918ee1b, type: 3}
+  - {fileID: 8300000, guid: 0cf1fba32f2b2fe4a9aab63457514612, type: 3}
+  - {fileID: 8300000, guid: 7f8a89ec1a1229e4bb09298253d987e9, type: 3}
+  - {fileID: 8300000, guid: ad4d820e7b1b07d4db31ceb2db591910, type: 3}
+  damageSounds:
+  - {fileID: 8300000, guid: 71e54b91893d5f24aacf12647f5f176f, type: 3}
+  runAwaySounds:
+  - {fileID: 8300000, guid: f5657f492efb801428b3e744182ced06, type: 3}
+  leapSoundVolume: 1
+  damageSoundVolume: 0.85
+  runAwaySoundVolume: 1
+  wagonDamageSoundInterval: 0.8

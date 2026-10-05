@@ -1,3 +1,4 @@
+using GetLost.Encounters;
 using Tom.WalkingController;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -35,8 +36,13 @@ namespace GetLost.Wagon
             if (keyboard == null) return;
             if (keyboard.eKey.wasPressedThisFrame)
             {
-                if (IsHolding) Release();
-                else TryGrab();
+                // A drop bear on this wagon takes interaction priority while it is
+                // close enough to remove, and while the player is holding it.
+                if (!DropBearEncounter.TryHandleInteract(this))
+                {
+                    if (IsHolding) Release();
+                    else TryGrab();
+                }
             }
             if (IsHolding && keyboard.gKey.wasPressedThisFrame) Wagon.ToggleGate();
             // Temporary supply interaction for testing, available at the parked wagon.
