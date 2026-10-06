@@ -6,11 +6,19 @@ Open **Assets/Scenes/PlayLoop/2_WorldScene.unity** and enter Play Mode.
 A simple wooden wagon spawns in a clear spot near the player. It follows the
 initial mission-setup teleport until first used; afterward it stays where left.
 
-- Walk between the two bars and press **E** to grab/release.
+- Walk between the two front bars or up to the rear grip and press **E** to grab/release.
+  The nearest grip is selected, so the wagon can be pulled or pushed from either end.
+- Walking bodily into the frame applies force at shoulder height. Side pressure can
+  tip and fully roll the wagon; there is no artificial upright lock.
 - Use the normal movement controls to pull, turn, or reverse. Looking still uses
   the existing first-person camera. Jumping is disabled while holding.
 - Grabbing opens the gravel gate. **G** toggles it for transport without building.
 - Release the wagon to apply its wheel brakes.
+- Wheel nuts gradually loosen and hard wheel impacts loosen them faster. Walk up,
+  look directly at a damaged wheel, and hold **E** to use the wrench.
+  A fully loose wheel physically detaches: look at it and press **E** to pick it up,
+  carry it to its original hub, press **E** to position it, then hold **E** to tighten it.
+- A sufficiently hard crash while riding throws the player into the normal tumble system.
 - **R**, while released and near the wagon, refills gravel. This is a temporary
   prototype supply interaction, not a finished inventory/refill mechanic.
 
@@ -67,10 +75,10 @@ gravel or receive a path.
 
 ## Deliberately deferred
 
-Wheel loosening, frame damage/repairs, saw and shovel interactions, physical tool
-inventory, upgrade purchasing, final sound/animation/art, and exact path-area
-accounting. Scoring still measures the existing player survey route, not gravel
-coverage. Those systems can be adjusted after testing the hauling loop.
+Frame damage/repairs, a physical tool inventory, saw and shovel interactions,
+upgrade purchasing, final sound/audio polish, and exact path-area accounting.
+Scoring still measures the existing player survey route, not gravel coverage.
+Those systems can be adjusted after testing the hauling loop.
 
 This iteration uses physical friction rather than per-texture wagon traction.
 It needs hands-on tuning in the full world; isolated physics checks do not establish

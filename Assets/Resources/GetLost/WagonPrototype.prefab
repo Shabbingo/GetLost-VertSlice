@@ -56,6 +56,37 @@ MonoBehaviour:
   gripReach: 0.75
   emptyPullSpeedMultiplier: 0.98
   loadedPullSpeedMultiplier: 0.82
+  playerBodyPushForce: 5200
+  playerPushLeverHeight: 0.55
+  riderLocalPosition: {x: 0, y: 0.12, z: -0.42}
+  rideMountDuration: 0.38
+  rideMountJumpHeight: 0.55
+  rideReturnDuration: 0.42
+  rideReturnHopHeight: 0.12
+  riderWeightShiftDistance: 0.38
+  riderMass: 75
+  rideSteeringAcceleration: 16
+  rideBrakeForce: 850
+  rideWeightShiftRate: 0.55
+  rideWeightReturnRate: 0.66
+  rideCameraShift: 0.075
+  rideCameraTilt: 4.5
+  rideDismountSideDistance: 1.45
+  frontLeftWheelLoosenPerMinute: 0.035
+  frontRightWheelLoosenPerMinute: 0.042
+  rearLeftWheelLoosenPerMinute: 0.028
+  rearRightWheelLoosenPerMinute: 0.032
+  wheelRepairDistance: 1.65
+  wheelRepairLookAngle: 18
+  wheelRepairPerSecond: 0.42
+  wheelPlacementDistance: 1.8
+  carriedWheelViewOffset: {x: 0.38, y: -0.42, z: 0.85}
+  wheelDamageImpactSpeed: 3.5
+  wheelDamagePerImpactSpeed: 0.11
+  riderEjectImpactSpeed: 7
+  riderEjectUpwardSpeed: 2.4
+  riderEjectForwardSpeed: 1.5
+  riderEjectCooldown: 0.75
   preferredSpawnDistance: 5
   fallbackSpawnDistance: 8
   maximumSpawnSlope: 30

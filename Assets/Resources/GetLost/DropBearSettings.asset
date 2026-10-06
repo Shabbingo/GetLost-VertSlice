@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DropBearSettings
   m_EditorClassIdentifier: Assembly-CSharp::GetLost.Encounters.DropBearSettings
   bearChancePerTree: 1
-  maximumInitialBears: 50
+  maximumInitialBears: 30
   minimumBearSpacing: 25
   minimumSpawnDistanceFromPlayer: 20
   territoryRadius: 20
@@ -29,7 +29,7 @@ MonoBehaviour:
   pickupLookAngle: 14
   heldScratchDelay: 1.8
   heldScratchInterval: 1.15
-  heldScratchDamage: 6
+  heldScratchDamage: 12
   escapeFromHandsChance: 0.3
   pursuitDuration: 5
   pursuitSpeed: 5.8
